@@ -81,10 +81,26 @@
 
 ```
 job_alrimi/
-├── crawler/          # Node.js 크롤러
-├── app/              # Flutter 앱
-├── functions/        # Firebase Cloud Functions
+├── crawler/          # Node.js 크롤러 (Playwright)
+├── job_alrimi_app/   # Flutter 앱 (Android/iOS/Web)
+├── firebase.json     # Firebase 설정
 └── docs/             # 문서
+```
+
+## 설치 및 실행 (Setup)
+
+### 1. 크롤러 (Crawler)
+```bash
+cd crawler
+npm install
+node src/index.js # (추후 구현 예정)
+```
+
+### 2. 모바일 앱 (App)
+```bash
+cd job_alrimi_app
+flutter pub get
+flutter run
 ```
 
 ## 검증 체크리스트
