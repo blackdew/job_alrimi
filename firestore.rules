@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 일자리/빈집 정보 - 읽기만 허용
+    match /items/{itemId} {
+      allow read: if true;
+      allow write: if false; // 크롤러만 쓰기 (Admin SDK 사용)
+    }
+
+    // 사용자 설정
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

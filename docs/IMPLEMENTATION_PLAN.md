@@ -75,3 +75,20 @@
 2.  **[DB]** Firestore 스키마 설계 및 크롤러 연동.
 3.  **[App]** Flutter 프로젝트 생성 및 Firebase 설정.
 4.  **[App]** UI 구현 (리스트/상세) 및 FCM 연동.
+
+---
+
+## 5. 프로젝트 구조 (Project Structure)
+**Monorepo** 방식을 채택하여 프로젝트를 통합 관리합니다.
+```
+/job_alrimi
+├── /crawler             # Node.js + Playwright 크롤러
+│   ├── .env             # 환경 변수 (Git 제외)
+│   ├── src/             # 크롤링 로직 (.ts/.js)
+│   └── package.json
+├── /job_alrimi_app      # Flutter 모바일/웹 앱
+│   ├── lib/             # Dart 소스 코드
+│   └── pubspec.yaml
+├── firebase.json        # Firebase 설정
+└── .gitignore
+```
