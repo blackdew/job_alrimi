@@ -3,6 +3,7 @@
 .env.local
 .env.*.local
 .claude/
+.key/
 
 # Node
 node_modules/
