@@ -149,15 +149,22 @@ async function crawlBoard(page) {
       const $el = $(el);
       const href = $el.attr('href');
 
-      // 제목 추출 (링크 텍스트만, 공백 정리)
-      let title = $el.text().trim();
-      // 개행문자 및 연속 공백 제거
-      title = title.replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
-
       // 부모 li에서 날짜 추출 (형식: "제목 _ 2024-01-01 _ 작성자")
       const parentText = $el.closest('li').text();
       const dateMatch = parentText.match(/(\d{4}-\d{2}-\d{2})/);
       const date = dateMatch ? dateMatch[1] : null;
+
+      // 제목 추출 (링크 텍스트에서 날짜/작성자/조회수 제거)
+      let title = $el.text().trim();
+      // 개행문자 및 연속 공백 제거
+      title = title.replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+      // 날짜, 작성자(○○), 조회수 패턴 제거
+      title = title
+        .replace(/\d{4}-\d{2}-\d{2}/, '')  // 날짜 제거
+        .replace(/[가-힣]○○/, '')          // 작성자 제거 (김○○ 등)
+        .replace(/조회수\s*[:：]?\s*\d+/, '')  // 조회수 제거
+        .replace(/\s+/g, ' ')
+        .trim();
 
       // 키워드 추출
       const keywords = extractKeywords(title);
