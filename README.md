@@ -93,7 +93,15 @@ job_alrimi/
 ```bash
 cd crawler
 npm install
-node src/index.js # (추후 구현 예정)
+
+# 일자리 크롤링 (새올, 구인구직, 워크넷)
+npm run crawl:jobs
+
+# 빈집 크롤링 (남해군청, 그린대로)
+npm run crawl:houses
+
+# 스케줄러 실행 (30분 간격)
+npm run scheduler
 ```
 
 ### 2. 모바일 앱 (App)

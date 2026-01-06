@@ -71,7 +71,9 @@
 ---
 
 ## 4. 실행 일정 (Action Items)
-1.  **[Backend]** Node.js + Playwright 크롤러 작성 및 로컬 테스트 (남해군청 사이트 구조 분석).
+1.  **[Backend]** Node.js + Playwright 크롤러 작성 및 로컬 테스트 (완료)
+    *   `crawler/src/crawlers/jobs.js`: 새올, 구인구직, 워크넷 수집 구현 완료.
+    *   `crawler/src/crawlers/houses.js`: 남해군청, 그린대로 빈집 수집 구현 완료.
 2.  **[DB]** Firestore 스키마 설계 및 크롤러 연동.
 3.  **[App]** Flutter 프로젝트 생성 및 Firebase 설정.
 4.  **[App]** UI 구현 (리스트/상세) 및 FCM 연동.
