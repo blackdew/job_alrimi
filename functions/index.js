@@ -9,39 +9,28 @@ const db = getFirestore();
 const messaging = getMessaging();
 
 /**
- * 새 문서 생성 시 푸시 알림 발송
- * Firestore 트리거: items 컬렉션에 새 문서 추가 시 실행
+ * 푸시 알림 발송 공통 함수
+ * @param {string} itemId - 문서 ID
+ * @param {Object} data - 문서 데이터
+ * @param {string} type - 'job' 또는 'house'
+ * @param {string} topic - FCM 토픽 이름
  */
-export const onNewItem = onDocumentCreated('items/{itemId}', async (event) => {
-  const snapshot = event.data;
-  if (!snapshot) {
-    console.log('No data associated with the event');
-    return;
-  }
+async function sendPushNotification(itemId, data, type, topic) {
+  const { title, source } = data;
 
-  const data = snapshot.data();
-  const { title, type, source } = data;
-
-  console.log(`New item created: ${title} (${type})`);
-
-  // 알림 메시지 구성
   const notification = {
     title: type === 'job' ? '💼 새 일자리 정보' : '🏠 새 빈집 정보',
     body: title,
   };
 
-  // 토픽 결정 (일자리/빈집 구독자)
-  const topic = type === 'job' ? 'jobs' : 'houses';
-
   try {
-    // 토픽 구독자에게 푸시 발송
     const response = await messaging.send({
       topic,
       notification,
       data: {
-        itemId: event.params.itemId,
+        itemId,
         type,
-        source,
+        source: source || '',
       },
       android: {
         priority: 'high',
@@ -56,10 +45,44 @@ export const onNewItem = onDocumentCreated('items/{itemId}', async (event) => {
       },
     });
 
-    console.log(`Successfully sent message: ${response}`);
+    console.log(`Successfully sent message to ${topic}: ${response}`);
   } catch (error) {
-    console.error('Error sending message:', error);
+    console.error(`Error sending message to ${topic}:`, error);
   }
+}
+
+/**
+ * 새 일자리 문서 생성 시 푸시 알림 발송
+ * Firestore 트리거: jobs 컬렉션에 새 문서 추가 시 실행
+ */
+export const onNewJob = onDocumentCreated('jobs/{jobId}', async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) {
+    console.log('No data associated with the event');
+    return;
+  }
+
+  const data = snapshot.data();
+  console.log(`New job created: ${data.title}`);
+
+  await sendPushNotification(event.params.jobId, data, 'job', 'jobs');
+});
+
+/**
+ * 새 빈집 문서 생성 시 푸시 알림 발송
+ * Firestore 트리거: houses 컬렉션에 새 문서 추가 시 실행
+ */
+export const onNewHouse = onDocumentCreated('houses/{houseId}', async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) {
+    console.log('No data associated with the event');
+    return;
+  }
+
+  const data = snapshot.data();
+  console.log(`New house created: ${data.title}`);
+
+  await sendPushNotification(event.params.houseId, data, 'house', 'houses');
 });
 
 /**
