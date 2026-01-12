@@ -71,12 +71,16 @@
 ---
 
 ## 4. 실행 일정 (Action Items)
-1.  **[Backend]** Node.js + Playwright 크롤러 작성 및 로컬 테스트 (완료)
+1.  **[Backend]** Node.js + Playwright 크롤러 작성 및 로컬 테스트 ✅ 완료
     *   `crawler/src/crawlers/jobs.js`: 새올, 구인구직, 워크넷 수집 구현 완료.
     *   `crawler/src/crawlers/houses.js`: 남해군청, 그린대로 빈집 수집 구현 완료.
-2.  **[DB]** Firestore 스키마 설계 및 크롤러 연동.
-3.  **[App]** Flutter 프로젝트 생성 및 Firebase 설정.
-4.  **[App]** UI 구현 (리스트/상세) 및 FCM 연동.
+2.  **[DB]** Firestore 스키마 설계 및 크롤러 연동 ✅ 완료
+3.  **[App]** Flutter 프로젝트 생성 및 Firebase 설정 ✅ 완료
+4.  **[App]** UI 구현 (리스트/상세) 및 FCM 연동 ✅ 완료
+5.  **[Infra]** Cloud Functions 배포 (푸시 알림 트리거) ✅ 완료 (2026-01-12)
+    *   `functions/index.js`: onNewJob, onNewHouse 트리거 배포됨
+6.  **[Infra]** 크롤러 자동화 환경 구축 (GitHub Actions) 🔲 진행 예정
+7.  **[App]** 배포용 앱 빌드 (APK Release) 🔲 진행 예정
 
 ---
 
@@ -91,6 +95,10 @@
 ├── /job_alrimi_app      # Flutter 모바일/웹 앱
 │   ├── lib/             # Dart 소스 코드
 │   └── pubspec.yaml
+├── /functions           # Firebase Cloud Functions (푸시 트리거)
+│   ├── index.js         # onNewJob, onNewHouse 트리거
+│   └── package.json
+├── /docs                # 프로젝트 문서
 ├── firebase.json        # Firebase 설정
 └── .gitignore
 ```
