@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 사용자 설정 상태 관리
 class SettingsProvider extends ChangeNotifier {
@@ -80,11 +81,26 @@ class SettingsProvider extends ChangeNotifier {
     await _updateHousesTopicSubscription();
   }
 
+  /// SharedPreferences에 설정 저장
   Future<void> _saveSettings() async {
-    // TODO: SharedPreferences에 저장 (US011에서 구현)
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('subscribeJobs', _subscribeJobs);
+    await prefs.setBool('subscribeHouses', _subscribeHouses);
+    await prefs.setBool('notificationsEnabled', _notificationsEnabled);
+    if (kDebugMode) {
+      print('Settings saved: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
+    }
   }
 
+  /// SharedPreferences에서 설정 로드
   Future<void> loadSettings() async {
-    // TODO: 저장된 설정 불러오기 (US011에서 구현)
+    final prefs = await SharedPreferences.getInstance();
+    _subscribeJobs = prefs.getBool('subscribeJobs') ?? true;
+    _subscribeHouses = prefs.getBool('subscribeHouses') ?? true;
+    _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+    notifyListeners();
+    if (kDebugMode) {
+      print('Settings loaded: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
+    }
   }
 }
