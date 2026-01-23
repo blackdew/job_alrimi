@@ -1,0 +1,6 @@
+# Ralph Agent 로컬 파일
+.last-branch
+archive/
+
+# 실제 prd.json은 커밋 (진행 상황 추적용)
+# progress.txt도 커밋 (학습 내용 공유용)

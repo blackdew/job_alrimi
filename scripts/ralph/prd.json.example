@@ -1,0 +1,41 @@
+{
+  "branchName": "ralph/feature-name",
+  "description": "기능 설명을 여기에 작성합니다",
+  "userStories": [
+    {
+      "id": "US001",
+      "title": "일자리 목록 조회",
+      "description": "사용자가 앱을 실행하면 남해군 일자리 목록을 볼 수 있다",
+      "acceptanceCriteria": [
+        "앱 실행 시 일자리 목록이 표시된다",
+        "각 항목에 제목, 기관명, 마감일이 표시된다",
+        "목록은 최신순으로 정렬된다"
+      ],
+      "priority": 1,
+      "passes": false
+    },
+    {
+      "id": "US002",
+      "title": "일자리 상세 보기",
+      "description": "사용자가 일자리 항목을 탭하면 상세 정보를 볼 수 있다",
+      "acceptanceCriteria": [
+        "항목 탭 시 상세 화면으로 이동한다",
+        "상세 화면에 전체 내용이 표시된다",
+        "큰 '전화 걸기' 버튼이 있다"
+      ],
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "US003",
+      "title": "전화 걸기 기능",
+      "description": "사용자가 전화 버튼을 탭하면 해당 연락처로 전화를 건다",
+      "acceptanceCriteria": [
+        "전화 버튼 탭 시 전화 앱이 실행된다",
+        "연락처 번호가 자동으로 입력된다"
+      ],
+      "priority": 3,
+      "passes": false
+    }
+  ]
+}
