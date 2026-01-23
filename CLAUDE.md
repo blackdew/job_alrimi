@@ -10,14 +10,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 job_alrimi/
+├── .github/workflows/    # GitHub Actions CI/CD
+│   └── crawler.yml       # 크롤러 자동화 (1시간 주기)
 ├── crawler/              # Node.js 크롤러 (Playwright + cheerio)
 │   └── src/
-│       ├── crawlers/     # 사이트별 크롤러
+│       ├── crawlers/     # 사이트별 크롤러 (jobs.js, houses.js)
 │       └── utils/        # 파서, Firebase 유틸
 ├── job_alrimi_app/       # Flutter 앱 (Android/iOS/Web)
 │   └── lib/
 │       ├── models/       # 데이터 모델
-│       ├── providers/    # 상태 관리 (Provider)
+│       ├── providers/    # 상태 관리 (Provider + SharedPreferences)
 │       ├── repositories/ # 데이터 접근 계층
 │       ├── screens/      # 화면
 │       └── widgets/      # 재사용 위젯
