@@ -36,7 +36,7 @@ job_alrimi/
 |------|------|
 | 크롤러 | Node.js (ESM), Playwright, cheerio, dotenv |
 | 데이터베이스 | Firebase Firestore |
-| 앱 | Flutter, Provider (상태관리) |
+| 앱 | Flutter, Provider (상태관리), SharedPreferences (설정 저장) |
 | 푸시 | Firebase Cloud Messaging (FCM) |
 | 서버리스 | Firebase Cloud Functions (v2) |
 
