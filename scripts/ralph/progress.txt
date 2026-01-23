@@ -1,0 +1,51 @@
+# Ralph Progress Log - job_alrimi
+
+## Issue #8: 크롤러 자동화 환경 구축 (GitHub Actions)
+
+이 파일은 Ralph 에이전트의 진행 상황과 학습 내용을 기록합니다.
+
+## Codebase Patterns (재사용 가능한 패턴)
+
+### 크롤러 구조
+- crawler/src/index.js: 메인 진입점
+- crawler/src/crawlers/jobs.js: 일자리 크롤러 (3개 사이트)
+- crawler/src/crawlers/houses.js: 빈집 크롤러 (2개 사이트)
+- Playwright 사용하여 동적 페이지 크롤링
+
+### 환경변수
+- FIREBASE_PROJECT_ID
+- FIREBASE_CLIENT_EMAIL
+- FIREBASE_PRIVATE_KEY
+
+---
+
+Started: 2026-01-24
+---
+
+## Iteration 1 - 2026-01-24
+
+### 완료한 스토리
+- **US001-US006**: GitHub Actions 크롤러 자동화 전체 구현
+
+### 변경 사항
+- `.github/workflows/crawler.yml`: GitHub Actions 워크플로우 파일 생성
+  - 30분 주기 자동 실행 (cron)
+  - 수동 실행 지원 (workflow_dispatch)
+  - 크롤링 타입 선택 (all/jobs/houses)
+  - Node.js 20 + Playwright chromium 설정
+  - Firebase Secret base64 디코딩 및 환경변수 설정
+  - 실패 시 자동 Issue 생성 (crawler-failure 라벨)
+
+- `docs/GITHUB_ACTIONS_SETUP.md`: 설정 가이드 문서
+  - Firebase 서비스 계정 키 다운로드 방법
+  - Base64 인코딩 방법 (macOS/Linux/Windows)
+  - Repository Secret 설정 방법
+  - 수동 실행 방법
+  - 문제 해결 가이드
+
+### 학습 내용
+- GitHub Actions에서 multiline 환경변수(private_key)는 heredoc 문법 사용
+- Playwright는 `--with-deps` 옵션으로 시스템 의존성도 함께 설치해야 함
+- 실패 알림은 별도 job으로 분리하고 `needs: crawl`, `if: failure()` 조건 사용
+
+---

@@ -13,7 +13,7 @@
         "schedule로 30분 주기 실행이 설정되어 있다 (cron: '*/30 * * * *')"
       ],
       "priority": 1,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US002",
@@ -26,7 +26,7 @@
         "crawler 디렉토리에서 작업이 실행된다"
       ],
       "priority": 2,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US003",
@@ -38,7 +38,7 @@
         "환경변수가 크롤러 실행 시 전달된다"
       ],
       "priority": 3,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US004",
@@ -50,7 +50,7 @@
         "실패 시 워크플로우가 실패 상태가 된다"
       ],
       "priority": 4,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US005",
@@ -61,7 +61,7 @@
         "GitHub Issue 생성 또는 다른 알림 방식이 구현된다"
       ],
       "priority": 5,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US006",
@@ -73,7 +73,7 @@
         "문서가 프로젝트 내에 포함된다"
       ],
       "priority": 6,
-      "passes": false
+      "passes": true
     }
   ]
 }

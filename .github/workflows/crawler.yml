@@ -1,0 +1,151 @@
+name: Crawler Automation
+
+on:
+  # 30분마다 자동 실행
+  schedule:
+    - cron: '*/30 * * * *'
+
+  # 수동 실행 가능
+  workflow_dispatch:
+    inputs:
+      crawl_type:
+        description: '크롤링 타입'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - jobs
+          - houses
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: crawler
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: crawler/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Setup Firebase credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          # Base64 디코딩하여 서비스 계정 JSON 파싱
+          SERVICE_ACCOUNT_JSON=$(echo "$FIREBASE_SERVICE_ACCOUNT" | base64 -d)
+
+          # 환경변수 파일 생성
+          echo "FIREBASE_PROJECT_ID=$(echo $SERVICE_ACCOUNT_JSON | jq -r '.project_id')" >> $GITHUB_ENV
+          echo "FIREBASE_CLIENT_EMAIL=$(echo $SERVICE_ACCOUNT_JSON | jq -r '.client_email')" >> $GITHUB_ENV
+
+          # private_key는 개행문자 처리가 필요
+          PRIVATE_KEY=$(echo $SERVICE_ACCOUNT_JSON | jq -r '.private_key')
+          echo "FIREBASE_PRIVATE_KEY<<EOF" >> $GITHUB_ENV
+          echo "$PRIVATE_KEY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Run crawler
+        env:
+          FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ env.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY: ${{ env.FIREBASE_PRIVATE_KEY }}
+        run: |
+          CRAWL_TYPE="${{ github.event.inputs.crawl_type || 'all' }}"
+
+          case $CRAWL_TYPE in
+            jobs)
+              echo "🏢 일자리만 크롤링..."
+              npm run crawl:jobs
+              ;;
+            houses)
+              echo "🏠 빈집만 크롤링..."
+              npm run crawl:houses
+              ;;
+            *)
+              echo "📋 전체 크롤링..."
+              npm run crawl
+              ;;
+          esac
+
+      - name: Report success
+        if: success()
+        run: echo "✅ 크롤링 완료 - $(date '+%Y-%m-%d %H:%M:%S KST')"
+
+  # 실패 시 Issue 생성
+  create-issue-on-failure:
+    runs-on: ubuntu-latest
+    needs: crawl
+    if: failure()
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Create failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 크롤러 실패 - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            ## 크롤러 자동화 실패 알림
+
+            **실행 시간**: ${new Date().toISOString()}
+            **워크플로우**: ${context.workflow}
+            **실행 번호**: #${context.runNumber}
+
+            ### 상세 정보
+            - [실행 로그 확인](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+            ### 조치 필요
+            - [ ] 로그 확인 및 오류 원인 파악
+            - [ ] 크롤링 대상 사이트 접근 가능 여부 확인
+            - [ ] Firebase 연결 상태 확인
+            `;
+
+            // 기존 열린 이슈가 있는지 확인
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'crawler-failure'
+            });
+
+            if (issues.length === 0) {
+              // 새 이슈 생성
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['crawler-failure', 'bug']
+              });
+              console.log('새 이슈가 생성되었습니다.');
+            } else {
+              // 기존 이슈에 코멘트 추가
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues[0].number,
+                body: `### 추가 실패 발생\n${body}`
+              });
+              console.log('기존 이슈에 코멘트가 추가되었습니다.');
+            }
