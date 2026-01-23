@@ -27,7 +27,7 @@ job_alrimi/
 
 ### 데이터 흐름
 ```
-크롤링(30분 주기) → Firestore 저장 → Cloud Functions 트리거 → FCM 푸시 알림 → 앱 확인 → 전화 걸기
+크롤링(1시간 주기) → Firestore 저장 → Cloud Functions 트리거 → FCM 푸시 알림 → 앱 확인 → 전화 걸기
 ```
 
 ## 기술 스택
