@@ -1,9 +1,9 @@
 name: Crawler Automation
 
 on:
-  # 30분마다 자동 실행
+  # 1시간마다 자동 실행
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 * * * *'
 
   # 수동 실행 가능
   workflow_dispatch:
