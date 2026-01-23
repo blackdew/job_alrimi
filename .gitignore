@@ -68,3 +68,9 @@ coverage/
 **/GoogleService-Info.plist
 **/firebase_options.dart
 **/serviceAccountKey.json
+
+# Ralph agent (로컬 작업 파일)
+scripts/ralph/prd.json
+scripts/ralph/progress.txt
+scripts/ralph/.last-branch
+scripts/ralph/archive/
