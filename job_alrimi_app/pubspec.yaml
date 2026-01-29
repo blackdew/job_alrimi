@@ -38,6 +38,7 @@ flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"
   adaptive_icon_background: "#4CAF50"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  # remove_alpha_ios: true  # 1024x1024 아이콘 사용 시 활성화 (현재 192x192 이미지로 인해 비활성화)
 
 flutter:
   uses-material-design: true
