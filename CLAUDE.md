@@ -74,8 +74,8 @@ npm run deploy           # 배포
 - 경남 워크넷: `https://gyeongnam.work.go.kr/namhae/main.do`
 
 ### 빈집
-- 귀농귀촌지원센터: `http://refarm.namhae.go.kr`
-- 그린대로: `https://greendaero.go.kr`
+- 남해군청 빈집정보: `https://www.namhae.go.kr/depart/Index.do?c=DE0201060000`
+- 그린대로: `https://www.greendaero.go.kr` (API: `/svc/rfph/cpif/getVacantHomePagingList.do`)
 
 ## UI/UX 원칙
 
