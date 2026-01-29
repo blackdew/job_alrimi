@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
+
+/// 개인정보처리방침 URL
+const String _privacyPolicyUrl = 'https://job-alrimi-namhae.web.app/privacy.html';
+
+/// 개인정보처리방침 페이지 열기
+Future<void> _launchPrivacyPolicy() async {
+  final uri = Uri.parse(_privacyPolicyUrl);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
 
 /// 설정 화면 - 키워드 구독
 class SettingsScreen extends StatelessWidget {
@@ -74,6 +86,16 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+
+              const Divider(),
+
+              // 개인정보처리방침
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined, size: 28),
+                title: const Text('개인정보처리방침', style: TextStyle(fontSize: 18)),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () => _launchPrivacyPolicy(),
               ),
             ],
           );
