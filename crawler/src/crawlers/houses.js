@@ -7,8 +7,15 @@ import { delay, withRetry, safeGoto, parseDate, generateId } from '../utils/craw
 const TARGETS = {
   // 남해군청 빈집 정보 (귀농귀촌지원센터 → 남해군청으로 통합)
   namhae: 'https://www.namhae.go.kr/depart/Index.do?c=DE0201060000',
-  // 그린대로 (남해군 필터: 경남=48, 남해군=48840)
-  greendaero: 'https://greendaero.go.kr/user/house/houseList.do?dosi=48&sigungu=48840',
+  // 그린대로 - 빈집 목록 페이지 (SPA 진입점)
+  greendaero: 'https://www.greendaero.go.kr/svc/rfph/cpif/front/vacantlist.do',
+  // 그린대로 API 엔드포인트
+  greendaeroApi: '/svc/rfph/cpif/getVacantHomePagingList.do',
+};
+
+// 그린대로 지역 코드
+const GREENDAERO_CODES = {
+  gyeongnam: '6480000',  // 경상남도
 };
 
 // 남해군 귀농귀촌 담당 연락처
@@ -130,110 +137,79 @@ async function crawlNamhae(page) {
 }
 
 /**
- * 그린대로 크롤링 (동적 페이지)
+ * 그린대로 크롤링 (API 직접 호출 방식)
+ * - SPA 구조로 인해 DOM 파싱 대신 API 직접 호출
+ * - 경상남도 전체 데이터 조회 후 남해군 필터링
  */
 async function crawlGreendaero(page) {
   const houses = [];
 
   try {
-    await safeGoto(page, TARGETS.greendaero, { waitUntil: 'load', delayAfter: 2000 });
+    // 1. 빈집 목록 페이지 접속 (세션 초기화)
+    await safeGoto(page, TARGETS.greendaero, { waitUntil: 'networkidle', delayAfter: 2000 });
 
-    // 동적 콘텐츠 로딩 대기
-    await page.waitForTimeout(3000);
+    // 2. API를 통해 경상남도 빈집 데이터 조회
+    const apiParams = {
+      apiPath: TARGETS.greendaeroApi,
+      ctpvCd: GREENDAERO_CODES.gyeongnam
+    };
+    const response = await page.evaluate(async (params) => {
+      try {
+        const url = `${params.apiPath}?page=1&itemsPerPage=100&ctpvCd=${params.ctpvCd}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (e) {
+        return { error: e.message, list: [] };
+      }
+    }, apiParams);
 
-    // JavaScript로 동적 로딩된 콘텐츠를 위해 추가 대기
-    try {
-      // 빈집 목록이 로딩될 때까지 대기 (최대 10초)
-      await page.waitForSelector('.house-list, .list-item, [class*="house"], [class*="item"]', {
-        timeout: 10000
-      }).catch(() => {});
-    } catch (e) {
-      // 선택자를 찾지 못해도 계속 진행
+    if (response.error) {
+      console.log(`    그린대로 API 오류: ${response.error}`);
+      return [];
     }
 
-    const html = await page.content();
-    const $ = cheerio.load(html);
+    // 3. 남해군 데이터 필터링
+    const namhaeData = (response.list || []).filter(item =>
+      item.sggNm?.includes('남해') ||
+      item.dongAddr?.includes('남해') ||
+      item.addr?.includes('남해')
+    );
 
-    // 여러 가능한 선택자 시도
-    const selectors = [
-      '.house-list li',
-      '.list-wrap li',
-      '.board-list li',
-      '[class*="house"] li',
-      '[class*="item"]',
-      '.card',
-      'table tbody tr',
-    ];
+    console.log(`    그린대로 API: 경상남도 ${response.list?.length || 0}건 중 남해군 ${namhaeData.length}건`);
 
-    let listItems = [];
-    for (const selector of selectors) {
-      const items = $(selector).toArray();
-      if (items.length > 0) {
-        listItems = items;
-        console.log(`    그린대로 선택자: ${selector} (${items.length}건)`);
-        break;
-      }
-    }
+    // 4. 데이터 변환
+    for (const item of namhaeData) {
+      // 거래 유형 매핑
+      const dealTypeMap = { '01': '매매', '02': '전세', '03': '월세', '04': '연세' };
+      const dealType = dealTypeMap[item.estateDlingTypeCd] || '';
 
-    // 텍스트 기반 폴백: "남해", "매매", "임대" 등 포함된 요소
-    if (listItems.length === 0) {
-      listItems = $('a, div, li').filter((_, el) => {
-        const text = $(el).text();
-        return (text.includes('남해') || text.includes('경남')) &&
-               (text.includes('매매') || text.includes('임대') || text.includes('빈집'));
-      }).toArray();
+      // 가격 정보 파싱
+      const deposit = item.grnteAmt ? `${Number(item.grnteAmt).toLocaleString()}만원` : null;
 
-      if (listItems.length > 0) {
-        console.log(`    그린대로: 텍스트 기반 검색 (${listItems.length}건)`);
-      }
-    }
-
-    for (const el of listItems.slice(0, 30)) {
-      const $el = $(el);
-      const text = $el.text();
-
-      // 링크 추출
-      const $link = $el.is('a') ? $el : $el.find('a').first();
-      const href = $link.attr('href');
-
-      // 제목 추출 (다양한 패턴 시도)
-      let title = $el.find('.title, .subject, h3, h4, strong').first().text().trim();
-      if (!title) {
-        title = text.substring(0, 100).trim();
+      // 제목 생성 (원본 제목이 없거나 너무 짧으면 주소 기반으로 생성)
+      let title = item.pstTtlNm?.trim();
+      if (!title || title.length < 3) {
+        const district = item.addr?.match(/남해군\s*(\S+)/)?.[1] || '';
+        title = `남해군 ${district} 빈집 ${dealType}`;
       }
 
-      // 가격 추출
-      const priceMatch = text.match(/(\d{1,3}[,\d]*)\s*(만원|원)/);
-      const price = priceMatch ? priceMatch[0] : null;
-
-      // 지역 추출
-      const locationMatch = text.match(/(남해군|남해)\s*[\w가-힣]+/);
-      const location = locationMatch ? locationMatch[0] : '남해군';
-
-      // 면적 추출
-      const areaMatch = text.match(/(\d+\.?\d*)\s*(㎡|평)/);
-      const area = areaMatch ? areaMatch[0] : null;
-
-      // 불필요한 UI 텍스트 필터링
-      const excludePatterns = ['로그인', '메뉴', '위치정보', '출석체크', '동의', '알림', '이용약관'];
-      const isExcluded = excludePatterns.some(pattern => title.includes(pattern));
-
-      if (title && title.length > 5 && !isExcluded && (title.includes('빈집') || title.includes('농가') || title.includes('주택') || price || area)) {
-        houses.push({
-          id: generateId('greendaero', href || title),
-          source: 'greendaero',
-          sourceName: '그린대로',
-          title: title.substring(0, 200),
-          price,
-          location,
-          area,
-          date: new Date().toISOString().split('T')[0],
-          link: href ? (href.startsWith('http') ? href : `https://greendaero.go.kr${href}`) : TARGETS.greendaero,
-          phones: ['1899-9097'],  // 그린대로 고객센터
-          type: 'house',
-          crawledAt: new Date().toISOString(),
-        });
-      }
+      houses.push({
+        id: generateId('greendaero', String(item.bbscttSn)),
+        source: 'greendaero',
+        sourceName: '그린대로',
+        title: title.substring(0, 200),
+        address: item.addr || item.dongAddr || '',
+        price: deposit,
+        area: item.areaSize ? `${item.areaSize}㎡` : null,
+        dealType,
+        description: item.iemCn5?.replace('매물특징 :', '').trim() || null,
+        date: item.frstRegDt || new Date().toISOString().split('T')[0],
+        link: `https://www.greendaero.go.kr/svc/rfph/cpif/front/vacantview.do?bbscttSn=${item.bbscttSn}`,
+        phones: ['1899-9097'],  // 그린대로 고객센터
+        type: 'house',
+        crawledAt: new Date().toISOString(),
+      });
     }
 
     console.log(`    그린대로: ${houses.length}건 수집`);
