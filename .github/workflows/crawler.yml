@@ -3,6 +3,7 @@ name: Crawler Automation
 on:
   # 1시간마다 자동 실행 (매시 정각, UTC 기준)
   # GitHub Actions 스케줄은 저장소에 최근 커밋이 있어야 활성화됨
+  # 2026-01-30: 스케줄 재활성화 시도
   schedule:
     - cron: '0 * * * *'
 
