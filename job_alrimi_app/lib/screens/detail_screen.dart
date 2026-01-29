@@ -15,60 +15,69 @@ class DetailScreen extends StatelessWidget {
         title: Text(item.typeEmoji),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        // 5060세대: 여백 확대
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 출처 라벨
+            // 출처 라벨 - 크기 확대
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 item.sourceLabel,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 제목 - 크기 확대 (28px)
+            Text(
+              item.title,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                height: 1.3,
               ),
             ),
             const SizedBox(height: 16),
 
-            // 제목
-            Text(
-              item.title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 날짜
+            // 날짜 - 색상 대비 강화
             Text(
               _formatDate(item.date),
               style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
+                fontSize: 18,
+                color: Colors.grey[700],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // 본문
+            // 본문 - 크기 확대 및 줄간격 개선
             if (item.description != null) ...[
               Text(
                 item.description!,
-                style: const TextStyle(fontSize: 18, height: 1.6),
+                style: const TextStyle(fontSize: 20, height: 1.7),
               ),
               const SizedBox(height: 32),
             ],
 
-            // 키워드 태그
+            // 키워드 태그 - 크기 확대
             if (item.keywords.isNotEmpty) ...[
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 10,
+                runSpacing: 10,
                 children: item.keywords
-                    .map((keyword) => Chip(label: Text(keyword)))
+                    .map((keyword) => Chip(
+                          label: Text(keyword),
+                          labelStyle: const TextStyle(fontSize: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                        ))
                     .toList(),
               ),
               const SizedBox(height: 32),

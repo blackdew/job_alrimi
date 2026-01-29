@@ -15,28 +15,36 @@ class JobListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      // 안읽은 항목: 왼쪽 빨간 테두리로 강조
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: item.isRead
+            ? BorderSide.none
+            : const BorderSide(color: Colors.red, width: 3),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          // 5060세대: 터치 영역 및 여백 확대
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              // 타입 아이콘
+              // 타입 아이콘 - 56x56px (최소 터치 타겟)
               Container(
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: item.type == 'job'
-                      ? Colors.blue.withOpacity(0.1)
-                      : Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                      ? Colors.blue.withValues(alpha: 0.15)
+                      : Colors.orange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
                   child: Text(
                     item.typeEmoji,
-                    style: const TextStyle(fontSize: 24),
+                    style: const TextStyle(fontSize: 28),
                   ),
                 ),
               ),
@@ -47,48 +55,57 @@ class JobListTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 출처
+                    // 출처 - 색상 대비 강화
                     Text(
                       item.sourceLabel,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
 
-                    // 제목
+                    // 제목 - 글씨 크기 확대
                     Text(
                       item.title,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+                        height: 1.3,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
 
-                    // 날짜
+                    // 날짜 - 색상 대비 강화
                     Text(
                       _formatRelativeDate(item.date),
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
+                        fontSize: 16,
+                        color: Colors.grey[700],
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // 읽지 않음 표시
+              // 읽지 않음: NEW 뱃지로 변경 (빨간 점보다 명확함)
               if (!item.isRead)
                 Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
                     color: Colors.red,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'NEW',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             ],

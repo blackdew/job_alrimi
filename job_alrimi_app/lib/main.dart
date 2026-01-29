@@ -170,11 +170,28 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.light,
           ),
           useMaterial3: true,
-          // 5060세대 고려: 기본 글씨 크기 확대
+          // 5060세대 고려: 전체 글씨 크기 확대 및 가독성 강화
           textTheme: const TextTheme(
-            bodyLarge: TextStyle(fontSize: 18),
-            bodyMedium: TextStyle(fontSize: 16),
-            titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            // 큰 제목 (상세 화면 제목)
+            titleLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            // 중간 제목 (리스트 제목)
+            titleMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            // 본문 (상세 내용)
+            bodyLarge: TextStyle(fontSize: 20, height: 1.6),
+            // 기본 텍스트
+            bodyMedium: TextStyle(fontSize: 18),
+            // 보조 텍스트 (날짜, 출처)
+            bodySmall: TextStyle(fontSize: 16, color: Color(0xFF616161)),
+            // 버튼/칩 라벨
+            labelLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          // AppBar 테마
+          appBarTheme: const AppBarTheme(
+            titleTextStyle: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
         home: const HomeScreen(),
