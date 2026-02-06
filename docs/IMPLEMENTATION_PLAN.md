@@ -80,14 +80,14 @@
 5.  **[Infra]** Cloud Functions 배포 (푸시 알림 트리거) ✅ 완료 (2026-01-12)
     *   `functions/index.js`: onNewJob, onNewHouse 트리거 배포됨
 6.  **[Infra]** 크롤러 자동화 환경 구축 (GitHub Actions) ✅ 완료 (2026-01-24)
-    *   `.github/workflows/crawler.yml`: 30분 주기 자동 크롤링, 수동 실행, 실패 시 Issue 생성
+    *   `.github/workflows/crawler.yml`: 1시간 주기 자동 크롤링, 수동 실행, 실패 시 Issue 생성
 7.  **[App]** FCM 푸시 수신 및 딥링크 구현 ✅ 완료 (2026-01-24)
     *   앱 종료/백그라운드 상태에서 푸시 수신
     *   알림 클릭 시 해당 아이템 상세 화면으로 이동
 8.  **[App]** 설정 영속화 구현 ✅ 완료 (2026-01-24)
     *   `SharedPreferences`를 통한 설정 저장/로드
     *   앱 재시작 시 이전 설정 복원
-9.  **[App]** 배포용 앱 빌드 (APK Release) 🔲 진행 예정
+9.  **[App]** 배포용 앱 빌드 (APK Release) ✅ 완료
 
 ---
 
@@ -96,7 +96,7 @@
 ```
 /job_alrimi
 ├── /.github/workflows   # GitHub Actions CI/CD
-│   └── crawler.yml      # 크롤러 자동화 (30분 주기)
+│   └── crawler.yml      # 크롤러 자동화 (1시간 주기)
 ├── /crawler             # Node.js + Playwright 크롤러
 │   ├── .env             # 환경 변수 (Git 제외)
 │   ├── src/             # 크롤링 로직 (.ts/.js)

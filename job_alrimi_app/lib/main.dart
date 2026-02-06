@@ -63,6 +63,10 @@ Future<void> _initializeFCM() async {
     // 웹: VAPID 키로 토큰 요청
     if (_webVapidKey != 'YOUR_VAPID_KEY_HERE') {
       token = await messaging.getToken(vapidKey: _webVapidKey);
+      // 웹 토큰을 Firestore에 저장 (서버 측 토픽 구독용)
+      if (token != null) {
+        await _saveWebTokenToFirestore(token);
+      }
     } else {
       if (kDebugMode) {
         print('⚠️ VAPID 키가 설정되지 않았습니다. Firebase Console에서 발급받으세요.');
@@ -75,6 +79,29 @@ Future<void> _initializeFCM() async {
 
   if (kDebugMode && token != null) {
     print('FCM Token: $token');
+  }
+}
+
+/// 웹 FCM 토큰을 Firestore에 저장 (서버 측 토픽 구독용)
+Future<void> _saveWebTokenToFirestore(String token) async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('fcm_tokens')
+        .doc(token)
+        .set({
+      'token': token,
+      'platform': 'web',
+      'topics': ['jobs', 'houses'],
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    if (kDebugMode) {
+      print('웹 FCM 토큰 저장 완료');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('웹 FCM 토큰 저장 실패: $e');
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { initializeApp } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -83,6 +83,42 @@ export const onNewHouse = onDocumentCreated('houses/{houseId}', async (event) =>
   console.log(`New house created: ${data.title}`);
 
   await sendPushNotification(event.params.houseId, data, 'house', 'houses');
+});
+
+/**
+ * 웹 FCM 토큰이 저장되면 토픽에 구독 처리
+ * 웹에서는 클라이언트 측 토픽 구독이 지원되지 않으므로
+ * 서버(Admin SDK)에서 토픽 구독을 처리함
+ */
+export const onTokenCreated = onDocumentWritten('fcm_tokens/{tokenId}', async (event) => {
+  const afterData = event.data?.after?.data();
+
+  if (!afterData) {
+    console.log('Token document deleted, skipping');
+    return;
+  }
+
+  const { token, topics } = afterData;
+
+  if (!token || !topics || !Array.isArray(topics)) {
+    console.log('Invalid token data');
+    return;
+  }
+
+  console.log(`Subscribing token to topics: ${topics.join(', ')}`);
+
+  for (const topic of topics) {
+    try {
+      const response = await messaging.subscribeToTopic([token], topic);
+      console.log(`Subscribed to ${topic}: success=${response.successCount}, failure=${response.failureCount}`);
+
+      if (response.failureCount > 0) {
+        console.error(`Failed to subscribe to ${topic}:`, response.errors);
+      }
+    } catch (error) {
+      console.error(`Error subscribing to ${topic}:`, error);
+    }
+  }
 });
 
 /**
