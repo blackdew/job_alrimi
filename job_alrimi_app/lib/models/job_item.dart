@@ -30,16 +30,39 @@ class JobItem {
     return JobItem(
       id: id,
       title: data['title'] ?? '',
-      source: data['source'] ?? '',
+      source: data['sourceName'] ?? data['source'] ?? '',
       type: data['type'] ?? 'job',
       description: data['description'],
-      phoneNumber: data['phoneNumber'],
+      phoneNumber: _extractPhone(data['phones']),
       link: data['link'],
-      date: (data['date'] as dynamic)?.toDate() ?? DateTime.now(),
-      crawledAt: (data['crawledAt'] as dynamic)?.toDate() ?? DateTime.now(),
+      date: _parseDate(data['date']),
+      crawledAt: _parseDate(data['crawledAt']),
       keywords: List<String>.from(data['keywords'] ?? []),
       isRead: data['isRead'] ?? false,
     );
+  }
+
+  /// 날짜 파싱 (Timestamp, String, null 모두 처리)
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+    // Firestore Timestamp
+    if (value.toDate != null) {
+      return value.toDate();
+    }
+    return DateTime.now();
+  }
+
+  /// phones 배열에서 첫 번째 전화번호 추출
+  static String? _extractPhone(dynamic phones) {
+    if (phones == null) return null;
+    if (phones is List && phones.isNotEmpty) {
+      return phones.first.toString();
+    }
+    if (phones is String) return phones;
+    return null;
   }
 
   Map<String, dynamic> toMap() {

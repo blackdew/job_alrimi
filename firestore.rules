@@ -2,8 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 일자리/빈집 정보 - 읽기만 허용
-    match /items/{itemId} {
+    // 일자리 정보 - 읽기만 허용
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow write: if false; // 크롤러만 쓰기 (Admin SDK 사용)
+    }
+
+    // 빈집 정보 - 읽기만 허용
+    match /houses/{houseId} {
       allow read: if true;
       allow write: if false; // 크롤러만 쓰기 (Admin SDK 사용)
     }
