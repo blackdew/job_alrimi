@@ -39,8 +39,7 @@ void main() async {
 }
 
 /// 웹 푸시용 VAPID 키 (Firebase Console > 프로젝트 설정 > 클라우드 메시징 > 웹 구성)
-/// TODO: Firebase Console에서 실제 VAPID 키를 발급받아 교체하세요
-const String _webVapidKey = 'YOUR_VAPID_KEY_HERE';
+const String _webVapidKey = 'BCrWHUg9PGYeQtlspWHhZ1aIvatOK-raZjkvz-ZxPz2Tm9qDHHZGzosLqH6ysmncom7-cunqosu0soaEpeqH0h4';
 
 /// FCM 초기화 및 권한 요청
 Future<void> _initializeFCM() async {
