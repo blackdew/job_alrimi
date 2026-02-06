@@ -48,9 +48,12 @@ class JobItem {
     if (value is String) {
       return DateTime.tryParse(value) ?? DateTime.now();
     }
-    // Firestore Timestamp
-    if (value.toDate != null) {
-      return value.toDate();
+    // Firestore Timestamp (try-catch로 안전하게 처리)
+    try {
+      final date = value.toDate();
+      if (date is DateTime) return date;
+    } catch (_) {
+      // toDate() 메서드가 없는 경우 무시
     }
     return DateTime.now();
   }
