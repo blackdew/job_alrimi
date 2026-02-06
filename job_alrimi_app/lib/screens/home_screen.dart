@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/job_provider.dart';
+import '../theme/app_colors.dart';
 import '../widgets/job_list_tile.dart';
 import 'detail_screen.dart';
 import 'settings_screen.dart';
@@ -54,14 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Consumer<JobProvider>(
       builder: (context, provider, _) {
         return Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
-              _filterChip('전체', 'all', provider),
+              _filterChip('전체', 'all', Icons.list_rounded, null, provider),
               const SizedBox(width: 8),
-              _filterChip('💼 일자리', 'job', provider),
+              _filterChip('일자리', 'job', Icons.work_rounded, AppColors.jobColor, provider),
               const SizedBox(width: 8),
-              _filterChip('🏠 빈집', 'house', provider),
+              _filterChip('빈집', 'house', Icons.home_rounded, AppColors.houseColor, provider),
             ],
           ),
         );
@@ -69,15 +70,44 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _filterChip(String label, String value, JobProvider provider) {
+  Widget _filterChip(String label, String value, IconData icon, Color? activeColor, JobProvider provider) {
     final isSelected = provider.filter == value;
-    return FilterChip(
-      // 5060세대: 글씨 크기 및 터치 영역 확대
-      label: Text(label, style: const TextStyle(fontSize: 18)),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      selected: isSelected,
-      onSelected: (_) => provider.setFilter(value),
+    final chipColor = activeColor ?? AppColors.primary;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => provider.setFilter(value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? chipColor : AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? chipColor : AppColors.divider,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [BoxShadow(color: chipColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: isSelected ? Colors.white : AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -96,9 +126,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: CircularProgressIndicator(strokeWidth: 4),
                 ),
                 const SizedBox(height: 24),
-                Text(
+                const Text(
                   '정보를 불러오는 중...',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -113,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.divider),
                   const SizedBox(height: 16),
                   Text(
                     provider.error!,
@@ -144,16 +174,16 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inbox_outlined, size: 80, color: Colors.grey[400]),
+                  const Icon(Icons.inbox_outlined, size: 80, color: AppColors.divider),
                   const SizedBox(height: 24),
                   const Text(
                     '새로운 정보가 없습니다',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  const Text(
                     '새 정보가 등록되면\n알림으로 알려드릴게요',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                 ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
+import '../theme/app_colors.dart';
 
 /// 개인정보처리방침 URL
 const String _privacyPolicyUrl = 'https://job-alrimi-namhae.web.app/privacy.html';
@@ -41,16 +42,34 @@ class SettingsScreen extends StatelessWidget {
 
               // 일자리 구독
               SwitchListTile(
-                title: const Text('💼 일자리 정보', style: TextStyle(fontSize: 18)),
+                title: Row(
+                  children: [
+                    Icon(Icons.work_rounded, color: AppColors.jobColor, size: 24),
+                    const SizedBox(width: 8),
+                    const Text('일자리 정보', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
                 subtitle: const Text('구인, 채용, 모집 공고'),
+                activeTrackColor: AppColors.primaryContainer,
+                thumbColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.selected) ? AppColors.primary : null),
                 value: settings.subscribeJobs,
                 onChanged: (_) => settings.toggleSubscribeJobs(),
               ),
 
               // 빈집 구독
               SwitchListTile(
-                title: const Text('🏠 빈집 정보', style: TextStyle(fontSize: 18)),
+                title: Row(
+                  children: [
+                    Icon(Icons.home_rounded, color: AppColors.houseColor, size: 24),
+                    const SizedBox(width: 8),
+                    const Text('빈집 정보', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
                 subtitle: const Text('매매, 임대, 월세 정보'),
+                activeTrackColor: AppColors.primaryContainer,
+                thumbColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.selected) ? AppColors.primary : null),
                 value: settings.subscribeHouses,
                 onChanged: (_) => settings.toggleSubscribeHouses(),
               ),
@@ -59,8 +78,17 @@ class SettingsScreen extends StatelessWidget {
 
               // 알림 설정
               SwitchListTile(
-                title: const Text('🔔 푸시 알림', style: TextStyle(fontSize: 18)),
+                title: const Row(
+                  children: [
+                    Icon(Icons.notifications_rounded, color: AppColors.primary, size: 24),
+                    SizedBox(width: 8),
+                    Text('푸시 알림', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
                 subtitle: const Text('새 정보 알림 받기'),
+                activeTrackColor: AppColors.primaryContainer,
+                thumbColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.selected) ? AppColors.primary : null),
                 value: settings.notificationsEnabled,
                 onChanged: (_) => settings.toggleNotifications(),
               ),
@@ -82,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
                     SizedBox(height: 8),
                     Text(
                       '남해군 일자리·빈집 정보를\n실시간으로 알려드립니다.',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
                 ),

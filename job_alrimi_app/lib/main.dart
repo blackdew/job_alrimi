@@ -10,6 +10,7 @@ import 'providers/settings_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'models/job_item.dart';
+import 'theme/app_colors.dart';
 
 /// 딥링크 네비게이션을 위한 Global Navigator Key
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -210,34 +211,53 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.green,
-            brightness: Brightness.light,
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.primary,
+            onPrimary: AppColors.onPrimary,
+            primaryContainer: AppColors.primaryContainer,
+            secondary: AppColors.jobColor,
+            tertiary: AppColors.houseColor,
+            surface: AppColors.surface,
+            onSurface: AppColors.textPrimary,
+            outline: AppColors.divider,
           ),
           useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFFFAFAFA),
           // 5060세대 고려: 전체 글씨 크기 확대 및 가독성 강화
           textTheme: const TextTheme(
             // 큰 제목 (상세 화면 제목)
-            titleLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             // 중간 제목 (리스트 제목)
-            titleMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            titleMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             // 본문 (상세 내용)
-            bodyLarge: TextStyle(fontSize: 20, height: 1.6),
+            bodyLarge: TextStyle(fontSize: 20, height: 1.6, color: AppColors.textPrimary),
             // 기본 텍스트
-            bodyMedium: TextStyle(fontSize: 18),
+            bodyMedium: TextStyle(fontSize: 18, color: AppColors.textPrimary),
             // 보조 텍스트 (날짜, 출처)
-            bodySmall: TextStyle(fontSize: 16, color: Color(0xFF616161)),
+            bodySmall: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             // 버튼/칩 라벨
             labelLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           // AppBar 테마
           appBarTheme: const AppBarTheme(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
             titleTextStyle: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: AppColors.onPrimary,
             ),
           ),
+          // 칩 테마
+          chipTheme: ChipThemeData(
+            selectedColor: AppColors.primary,
+            labelStyle: const TextStyle(fontSize: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          dividerTheme: const DividerThemeData(color: AppColors.divider),
         ),
         home: const HomeScreen(),
       ),
