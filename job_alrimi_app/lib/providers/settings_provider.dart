@@ -6,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsProvider extends ChangeNotifier {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
+  /// 웹에서는 클라이언트 토픽 구독이 지원되지 않음
+  /// 서버(Admin SDK)에서 토큰 기반 토픽 구독 필요
+  bool get _canSubscribeToTopics => !kIsWeb;
+
   // 키워드 구독 설정
   bool _subscribeJobs = true;
   bool _subscribeHouses = true;
@@ -47,6 +51,10 @@ class SettingsProvider extends ChangeNotifier {
 
   /// jobs 토픽 구독/해제
   Future<void> _updateJobsTopicSubscription() async {
+    if (!_canSubscribeToTopics) {
+      if (kDebugMode) print('FCM: 웹에서는 토픽 구독 건너뜀 (서버에서 처리 필요)');
+      return;
+    }
     if (_subscribeJobs && _notificationsEnabled) {
       await _messaging.subscribeToTopic('jobs');
       if (kDebugMode) {
@@ -62,6 +70,7 @@ class SettingsProvider extends ChangeNotifier {
 
   /// houses 토픽 구독/해제
   Future<void> _updateHousesTopicSubscription() async {
+    if (!_canSubscribeToTopics) return;
     if (_subscribeHouses && _notificationsEnabled) {
       await _messaging.subscribeToTopic('houses');
       if (kDebugMode) {

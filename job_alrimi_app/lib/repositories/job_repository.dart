@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/job_item.dart';
 
 /// 일자리/빈집 데이터 Repository
@@ -20,13 +21,23 @@ class JobRepository {
         .limit(50)
         .get();
 
-    final jobs = jobsSnapshot.docs
-        .map((doc) => JobItem.fromFirestore(doc.data(), doc.id))
-        .toList();
+    final jobs = <JobItem>[];
+    for (final doc in jobsSnapshot.docs) {
+      try {
+        jobs.add(JobItem.fromFirestore(doc.data(), doc.id));
+      } catch (e) {
+        if (kDebugMode) print('Job parse error: $e, data: ${doc.data()}');
+      }
+    }
 
-    final houses = housesSnapshot.docs
-        .map((doc) => JobItem.fromFirestore(doc.data(), doc.id))
-        .toList();
+    final houses = <JobItem>[];
+    for (final doc in housesSnapshot.docs) {
+      try {
+        houses.add(JobItem.fromFirestore(doc.data(), doc.id));
+      } catch (e) {
+        if (kDebugMode) print('House parse error: $e, data: ${doc.data()}');
+      }
+    }
 
     final all = [...jobs, ...houses];
     all.sort((a, b) => b.crawledAt.compareTo(a.crawledAt));
