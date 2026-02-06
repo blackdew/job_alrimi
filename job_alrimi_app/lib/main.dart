@@ -38,6 +38,10 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// 웹 푸시용 VAPID 키 (Firebase Console > 프로젝트 설정 > 클라우드 메시징 > 웹 구성)
+/// TODO: Firebase Console에서 실제 VAPID 키를 발급받아 교체하세요
+const String _webVapidKey = 'YOUR_VAPID_KEY_HERE';
+
 /// FCM 초기화 및 권한 요청
 Future<void> _initializeFCM() async {
   final messaging = FirebaseMessaging.instance;
@@ -53,9 +57,24 @@ Future<void> _initializeFCM() async {
     print('FCM 권한 상태: ${settings.authorizationStatus}');
   }
 
-  // FCM 토큰 가져오기 (디버그용)
-  final token = await messaging.getToken();
-  if (kDebugMode) {
+  // FCM 토큰 가져오기
+  // 웹에서는 VAPID 키가 필요
+  String? token;
+  if (kIsWeb) {
+    // 웹: VAPID 키로 토큰 요청
+    if (_webVapidKey != 'YOUR_VAPID_KEY_HERE') {
+      token = await messaging.getToken(vapidKey: _webVapidKey);
+    } else {
+      if (kDebugMode) {
+        print('⚠️ VAPID 키가 설정되지 않았습니다. Firebase Console에서 발급받으세요.');
+      }
+    }
+  } else {
+    // 모바일: VAPID 키 불필요
+    token = await messaging.getToken();
+  }
+
+  if (kDebugMode && token != null) {
     print('FCM Token: $token');
   }
 }

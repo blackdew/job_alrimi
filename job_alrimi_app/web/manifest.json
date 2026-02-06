@@ -1,13 +1,14 @@
 {
-    "name": "job_alrimi_app",
-    "short_name": "job_alrimi_app",
+    "name": "남해 알리미",
+    "short_name": "남해 알리미",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#4CAF50",
+    "description": "남해군 일자리·빈집 정보 알림 앱",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "gcm_sender_id": "103953800507",
     "icons": [
         {
             "src": "icons/Icon-192.png",
