@@ -3,6 +3,9 @@
 > [!NOTE]
 > 본 문서는 남해군 주민 및 예비 이주민을 위한 '지역 밀착형 생활 정보 플랫폼' 구축을 위한 기획서입니다.
 
+> [!IMPORTANT]
+> ※ 일부 URL은 실제 구현에서 변경되었습니다. 최신 정보는 CLAUDE.md를 참고하세요.
+
 ## 1. 개요 및 추진 배경 (Overview & Background)
 
 ### 1.1 분석 배경 (Problem Statement)

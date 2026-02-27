@@ -11,8 +11,8 @@
     2.  `https://www.namhae.go.kr/portal/board/List.do?gcode=1617&&pageCd=WW0201022000&siteGubun=portal`
     3.  `https://gyeongnam.work.go.kr/namhae/main.do`
     *   일자리 정보 (제목, 작성일, 연락처, 본문 등)
-*   **남해군 빈집 정보 (귀농귀촌지원센터)**: `http://refarm.namhae.go.kr` 및 `https://greendaero.go.kr` (남해군 필터)
-    *   빈집 매매/임대 정보 (구체적인 게시판 URL은 크롤러 개발 단계에서 `refarm.namhae.go.kr` 내부 탐색 확정)
+*   **남해군 빈집 정보**: `https://www.namhae.go.kr/depart/Index.do?c=DE0201060000` (남해군청 빈집정보) 및 `https://greendaero.go.kr` (남해군 필터)
+    *   빈집 매매/임대 정보
 
 ### 1.2 기술 스택 (Tech Stack)
 *   **Env**: **Node.js** (비동기 처리 특화)
@@ -103,6 +103,12 @@
 │   └── package.json
 ├── /job_alrimi_app      # Flutter 모바일/웹 앱
 │   ├── lib/             # Dart 소스 코드
+│   │   ├── models/      # 데이터 모델
+│   │   ├── providers/   # 상태 관리
+│   │   ├── repositories/# 데이터 접근 계층
+│   │   ├── screens/     # 화면
+│   │   ├── theme/       # 색상 시스템 (WCAG AA)
+│   │   └── widgets/     # 재사용 위젯
 │   └── pubspec.yaml
 ├── /functions           # Firebase Cloud Functions (푸시 트리거)
 │   ├── index.js         # onNewJob, onNewHouse 트리거

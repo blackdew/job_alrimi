@@ -28,6 +28,8 @@ lib/
 │   ├── home_screen.dart
 │   ├── detail_screen.dart
 │   └── settings_screen.dart
+├── theme/                 # 색상 시스템
+│   └── app_colors.dart        # WCAG AA 대비 색상 정의
 └── widgets/               # 재사용 위젯
     └── job_list_tile.dart
 ```
@@ -39,6 +41,15 @@ lib/
 3. **설정**: 키워드 구독 및 알림 설정 (SharedPreferences 영속화)
 4. **FCM 푸시 알림**: 백그라운드/종료 상태에서도 알림 수신
 5. **딥링크**: 알림 클릭 시 해당 아이템 상세 화면으로 이동
+
+## 웹 푸시 알림
+
+웹 환경에서는 클라이언트 측 FCM 토픽 구독이 지원되지 않습니다. 이를 보완하기 위해 Firebase Cloud Functions의 `onTokenCreated` 함수(`functions/index.js`)가 서버 측에서 토픽 구독을 처리합니다.
+
+**동작 흐름:**
+1. 웹 앱이 FCM 토큰을 Firestore `fcm_tokens` 컬렉션에 저장
+2. `onTokenCreated` 함수가 Firestore 트리거로 실행
+3. Admin SDK를 사용하여 해당 토큰을 요청된 토픽(`jobs`, `houses`)에 구독 등록
 
 ## Firebase 설정
 

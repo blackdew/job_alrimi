@@ -19,7 +19,7 @@
 3. 경남 워크넷 (남해군)
 
 ### 빈집 정보
-1. 남해군 귀농귀촌지원센터 (`refarm.namhae.go.kr`)
+1. 남해군청 빈집정보 (`www.namhae.go.kr/depart/Index.do?c=DE0201060000`)
 2. 그린대로 농촌 빈집은행 (`greendaero.go.kr`)
 
 ## 타겟 사용자
@@ -81,12 +81,22 @@
 
 ```
 job_alrimi/
-├── .github/workflows/  # GitHub Actions (크롤러 자동화)
-├── crawler/            # Node.js 크롤러 (Playwright + cheerio)
-├── job_alrimi_app/     # Flutter 앱 (Android/iOS/Web)
-├── functions/          # Firebase Cloud Functions (푸시 트리거)
-├── firebase.json       # Firebase 설정
-└── docs/               # 문서
+├── .github/workflows/    # GitHub Actions (크롤러 자동화)
+├── crawler/              # Node.js 크롤러 (Playwright + cheerio)
+│   └── src/
+│       ├── crawlers/     # 사이트별 크롤러 (jobs.js, houses.js)
+│       └── utils/        # 파서, Firebase 유틸
+├── job_alrimi_app/       # Flutter 앱 (Android/iOS/Web)
+│   └── lib/
+│       ├── models/       # 데이터 모델
+│       ├── providers/    # 상태 관리 (Provider + SharedPreferences)
+│       ├── repositories/ # 데이터 접근 계층
+│       ├── screens/      # 화면
+│       ├── theme/        # 색상 시스템 (WCAG AA 대비)
+│       └── widgets/      # 재사용 위젯
+├── functions/            # Firebase Cloud Functions (푸시 트리거)
+├── firebase.json         # Firebase 설정
+└── docs/                 # 문서
 ```
 
 ## 설치 및 실행 (Setup)
