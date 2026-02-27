@@ -39,8 +39,8 @@ void main() async {
   runApp(const MyApp());
 }
 
-/// 웹 푸시용 VAPID 키 (Firebase Console > 프로젝트 설정 > 클라우드 메시징 > 웹 구성)
-// VAPID 공개 키 (Public Key) - 클라이언트 배포용, 비밀 키는 서버에만 존재
+/// 웹 푸시용 VAPID 공개 키 (Public Key) - 클라이언트 배포용, 비밀 키는 서버에만 존재
+/// Firebase Console > 프로젝트 설정 > 클라우드 메시징 > 웹 구성
 const String _webVapidKey = 'BCrWHUg9PGYeQtlspWHhZ1aIvatOK-raZjkvz-ZxPz2Tm9qDHHZGzosLqH6ysmncom7-cunqosu0soaEpeqH0h4';
 
 /// FCM 초기화 및 권한 요청
