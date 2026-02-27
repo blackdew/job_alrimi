@@ -3,7 +3,7 @@ name: crawler-expert
 description: Node.js 크롤러 및 CI/CD 파이프라인 버그 수정/유지보수. crawler/ 디렉토리, GitHub Actions 워크플로우 관련 작업 시 사용
 tools: Bash, Read, Edit, Write, Grep, Glob
 model: sonnet
-permissionMode: default
+permissionMode: bypassPermissions
 isolation: worktree
 ---
 
@@ -22,6 +22,7 @@ Node.js 크롤러 및 GitHub Actions CI/CD 전문가.
 - 남해군청 새올: `https://www.namhae.go.kr/modules/saeol/gosi.do`
 - 남해군청 구인구직: `https://www.namhae.go.kr/portal/board/List.do`
 - 경남 워크넷: `https://gyeongnam.work.go.kr/namhae/main.do`
+- 남해군청 빈집정보: `https://www.namhae.go.kr/depart/Index.do?c=DE0201060000`
 - 그린대로 빈집 API: `https://www.greendaero.go.kr/svc/rfph/cpif/getVacantHomePagingList.do`
 
 ## 현재 프로젝트 컨텍스트

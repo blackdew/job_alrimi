@@ -35,6 +35,10 @@ qa-inspector agent로 프로젝트 전체를 점검한다.
 - TODO/FIXME 잔존 현황
 - 미사용 import, 데드코드
 
+### 의존성 보안
+- `cd crawler && npm audit` 취약점 확인
+- `cd functions && npm audit` 취약점 확인
+
 ### 문서 정합성
 - CLAUDE.md와 실제 프로젝트 구조 일치 여부
 - 열린 이슈 중 이미 해결된 것이 있는지
@@ -46,6 +50,15 @@ qa-inspector agent로 프로젝트 전체를 점검한다.
 2. 중복 아니면 `gh issue create`
 3. 중복이면 기존 이슈에 코멘트
 
+## 채점 기준 (100점)
+
+| 영역 | 배점 | 점검 내용 |
+|------|------|----------|
+| 보안 | 25 | 시크릿 노출, npm 취약점, .gitignore |
+| 빌드 | 25 | flutter analyze, flutter build web, npm run dev |
+| 코드 품질 | 25 | TODO/FIXME, 미사용 import, lint 경고 |
+| 문서 정합성 | 25 | CLAUDE.md ↔ 코드 구조, 이슈 상태 |
+
 ## 결과
 
-점검 완료 후 요약 보고: 통과/실패, 새 이슈 목록, 긴급도 판단
+점검 완료 후 요약 보고: 총점(100점 만점), 영역별 점수, 통과/실패, 새 이슈 목록, 긴급도 판단

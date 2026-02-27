@@ -30,7 +30,11 @@ permissionMode: default
 - 하드코딩된 시크릿 탐지
 - TODO/FIXME 잔존 현황
 
-### 5. 문서 정합성
+### 5. 의존성 보안
+- `cd crawler && npm audit` 취약점 0건 확인
+- `cd functions && npm audit` 취약점 0건 확인
+
+### 6. 문서 정합성
 - CLAUDE.md와 실제 프로젝트 구조 일치 여부
 - 열린 이슈와 실제 상태 불일치 여부
 
@@ -45,9 +49,19 @@ permissionMode: default
 3. 중복이면: 기존 이슈에 코멘트 추가
 4. 라벨: `bug` (동작 안 함), `enhancement` (개선), `documentation` (문서 불일치)
 
+## 채점 기준 (100점)
+
+| 영역 | 배점 | 점검 내용 |
+|------|------|----------|
+| 보안 | 25 | 시크릿 노출, npm 취약점, .gitignore |
+| 빌드 | 25 | flutter analyze, flutter build web, npm run dev |
+| 코드 품질 | 25 | TODO/FIXME, 미사용 import, lint 경고 |
+| 문서 정합성 | 25 | CLAUDE.md ↔ 코드 구조, 이슈 상태 |
+
 ## 보고 형식
 
 점검 완료 후 요약:
+- 총점 (100점 만점) 및 영역별 점수
 - 통과/실패 항목 수
 - 새로 생성한 이슈 번호 목록
 - 긴급도 판단 (즉시 대응 / 다음 스프린트)

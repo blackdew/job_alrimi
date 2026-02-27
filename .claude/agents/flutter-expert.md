@@ -3,7 +3,7 @@ name: flutter-expert
 description: Flutter 앱/웹 개발 및 Firebase 연동 전문가. job_alrimi_app/, functions/ 디렉토리 관련 작업 시 사용
 tools: Bash, Read, Edit, Write, Grep, Glob
 model: sonnet
-permissionMode: default
+permissionMode: bypassPermissions
 isolation: worktree
 ---
 
@@ -25,8 +25,15 @@ lib/
 ├── providers/    # Provider 상태 관리
 ├── repositories/ # Firestore 데이터 접근
 ├── screens/      # 홈, 상세, 설정 화면
+├── theme/        # 색상 시스템 (WCAG AA)
 └── widgets/      # 재사용 위젯
 ```
+
+## Cloud Functions (`functions/index.js`)
+
+- `onNewJob`: jobs 컬렉션 문서 생성 시 FCM 푸시
+- `onNewHouse`: houses 컬렉션 문서 생성 시 FCM 푸시
+- `onTokenCreated`: 웹 FCM 토큰 서버 측 토픽 구독
 
 ## 현재 프로젝트 컨텍스트
 

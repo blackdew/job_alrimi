@@ -38,7 +38,7 @@ git status && git branch -a
 
 ## Agent 팀 구성
 
-`.claude/agents/`에 4개의 전문 Agent가 정의되어 있다.
+`.claude/agents/`에 5개의 전문 Agent가 정의되어 있다.
 
 | Agent | 역할 | 코드 수정 | 격리 |
 |-------|------|:---------:|:----:|
@@ -46,14 +46,16 @@ git status && git branch -a
 | **flutter-expert** | Flutter 앱/웹 개발 및 Firebase 연동 | O | worktree |
 | **qa-inspector** | 품질 점검 + 문제 발견 시 GitHub 이슈 등록 | **X** | - |
 | **doc-optimizer** | 문서 동기화 (정확하되 최소화) | 문서만 | - |
+| **tooling-expert** | Agent/Skill/설정 점검 및 개선 | 설정만 | - |
 
 이슈 도메인에 따라 적절한 Agent를 선택한다:
 - `crawler/`, `.github/workflows/` 관련 → **crawler-expert**
 - `job_alrimi_app/`, `functions/` 관련 → **flutter-expert**
+- `.claude/`, `CLAUDE.md` 관련 → **tooling-expert**
 
 ## 워크플로우 Skill
 
-`.claude/skills/`에 5개의 워크플로우 Skill이 정의되어 있다.
+`.claude/skills/`에 6개의 워크플로우 Skill이 정의되어 있다.
 
 | Skill | 용도 | 호출 |
 |-------|------|------|
@@ -62,6 +64,7 @@ git status && git branch -a
 | **qa-inspect** | 전체 품질 점검 → 이슈 등록 | `/qa-inspect` |
 | **doc-optimize** | 문서 최적화 (현재 상태 동기화) | `/doc-optimize` |
 | **full-cycle** | 점검→작업→문서→검증 전체 사이클 | `/full-cycle {이슈번호들}` |
+| **improve-tooling** | 에이전트/스킬 자기 개선 | `/improve-tooling` |
 
 ### 표준 작업 사이클
 
@@ -82,8 +85,8 @@ job_alrimi/
 ├── .github/workflows/    # GitHub Actions CI/CD
 │   └── crawler.yml       # 크롤러 자동화 (1시간 주기)
 ├── .claude/
-│   ├── agents/           # 커스텀 Agent 정의 (4종)
-│   ├── skills/           # 워크플로우 Skill 정의 (5종)
+│   ├── agents/           # 커스텀 Agent 정의 (5종)
+│   ├── skills/           # 워크플로우 Skill 정의 (6종)
 │   └── settings.json     # PostToolUse 훅 (dart analyze, node --check)
 ├── crawler/              # Node.js 크롤러 (Playwright + cheerio)
 │   └── src/

@@ -17,10 +17,13 @@ qa-inspector agent로 프로젝트 현황 점검. 추가 이슈 발견 시 GitHu
 ## Phase 2: 작업
 
 각 이슈를 도메인에 맞는 agent에게 할당:
-- `crawler/` 관련 → crawler-expert agent
-- `job_alrimi_app/`, `functions/` 관련 → flutter-expert agent
-- 독립 이슈는 병렬 처리 (worktree 격리)
-- 같은 파일 수정 이슈는 순차 처리
+- `crawler/`, `.github/workflows/` 관련 → crawler-expert agent (Task tool: `subagent_type: "crawler-expert"`, `isolation: "worktree"`)
+- `job_alrimi_app/`, `functions/` 관련 → flutter-expert agent (Task tool: `subagent_type: "flutter-expert"`, `isolation: "worktree"`)
+- `.claude/`, `CLAUDE.md` 관련 → tooling-expert agent (Task tool: `subagent_type: "tooling-expert"`)
+
+병렬/순차 판단 기준:
+- **병렬 가능**: 서로 다른 디렉토리의 이슈 (예: crawler/ + job_alrimi_app/)
+- **순차 필수**: 같은 파일을 수정하는 이슈, 또는 한 이슈가 다른 이슈에 의존하는 경우
 
 이슈별 워크플로우:
 - bug 라벨 → TDD (Red-Green-Refactor)
