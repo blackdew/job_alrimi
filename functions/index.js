@@ -43,6 +43,17 @@ async function sendPushNotification(itemId, data, type, topic) {
           },
         },
       },
+      webpush: {
+        notification: {
+          icon: '/icons/Icon-192.png',
+          badge: '/icons/Icon-192.png',
+          tag: `${type}-${itemId}`,
+          requireInteraction: true,
+        },
+        fcmOptions: {
+          link: `/?item=${itemId}&type=${type}`,
+        },
+      },
     });
 
     console.log(`Successfully sent message to ${topic}: ${response}`);

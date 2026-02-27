@@ -137,14 +137,40 @@ class _MyAppState extends State<MyApp> {
 
   /// FCM 메시지 리스너 설정
   void _setupFCMListeners() {
-    // Foreground 메시지 처리
+    // Foreground 메시지 처리 - 인앱 알림 표시
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
         print('Foreground message received: ${message.notification?.title}');
       }
-      // Foreground에서는 시스템 알림이 표시되지 않으므로
-      // 필요시 로컬 알림이나 인앱 알림을 표시할 수 있음
-      // 현재는 로그만 출력
+
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+
+      final title = message.notification?.title ?? '새 알림';
+      final body = message.notification?.body ?? '';
+      final itemId = message.data['itemId'];
+      final type = message.data['type'];
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              if (body.isNotEmpty) Text(body, style: const TextStyle(fontSize: 14)),
+            ],
+          ),
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          action: (itemId != null && type != null)
+              ? SnackBarAction(
+                  label: '보기',
+                  onPressed: () => _navigateToDetail(itemId, type),
+                )
+              : null,
+        ),
+      );
     });
 
     // Background 상태에서 알림 클릭 처리
