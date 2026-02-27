@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{"type": "command", "command": "FILE=\"$CLAUDE_FILE_PATH\"; if echo \"$FILE\" | grep -q '\\.dart$'; then cd /Users/sookbunlee/work/job_alrimi/job_alrimi_app && dart analyze \"$FILE\" 2>&1 | head -20; elif echo \"$FILE\" | grep -q '\\.js$'; then node --check \"$FILE\" 2>&1; fi"}]
+      }
+    ]
+  }
+}

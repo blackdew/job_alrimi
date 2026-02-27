@@ -2,7 +2,6 @@
 .env
 .env.local
 .env.*.local
-.claude/
 .key/
 
 # Node
@@ -74,3 +73,6 @@ scripts/ralph/prd.json
 scripts/ralph/progress.txt
 scripts/ralph/.last-branch
 scripts/ralph/archive/
+
+# Claude Code (로컬 설정)
+.claude/settings.local.json
