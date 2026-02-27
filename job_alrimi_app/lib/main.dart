@@ -143,15 +143,17 @@ class _MyAppState extends State<MyApp> {
         print('Foreground message received: ${message.notification?.title}');
       }
 
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
+      final messenger = navigatorKey.currentContext != null
+          ? ScaffoldMessenger.maybeOf(navigatorKey.currentContext!)
+          : null;
+      if (messenger == null) return;
 
       final title = message.notification?.title ?? '새 알림';
       final body = message.notification?.body ?? '';
       final itemId = message.data['itemId'];
       final type = message.data['type'];
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Column(
             mainAxisSize: MainAxisSize.min,

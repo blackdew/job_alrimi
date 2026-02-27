@@ -96,6 +96,8 @@ class JobItem {
         return '귀농귀촌';
       case 'greendaero':
         return '그린대로';
+      case 'namhae':
+        return '남해군청';
       default:
         return source;
     }

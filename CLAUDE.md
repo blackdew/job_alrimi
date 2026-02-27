@@ -95,6 +95,7 @@ job_alrimi/
 │       ├── providers/    # 상태 관리 (Provider + SharedPreferences)
 │       ├── repositories/ # 데이터 접근 계층
 │       ├── screens/      # 화면
+│       ├── theme/        # 색상 시스템 (AppColors)
 │       └── widgets/      # 재사용 위젯
 ├── functions/            # Firebase Cloud Functions (푸시 트리거)
 └── docs/                 # PRD, 구현 계획서

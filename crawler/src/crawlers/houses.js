@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import * as cheerio from 'cheerio';
-import { extractPhoneNumbers } from '../utils/parser.js';
+
 import { delay, withRetry, safeGoto, parseDate, generateId } from '../utils/crawler.js';
 
 // 크롤링 대상 URL
