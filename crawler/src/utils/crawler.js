@@ -48,8 +48,8 @@ export async function withRetry(fn, options = {}) {
  */
 export async function safeGoto(page, url, options = {}) {
   const {
-    waitUntil = 'networkidle',
-    timeout = 30000,
+    waitUntil = 'domcontentloaded',  // networkidle은 외부 스크립트로 인해 타임아웃 발생 (#29)
+    timeout = 60000,                  // 30초에서 60초로 증가 - 공공기관 사이트 대응
     delayAfter = 1000  // 페이지 로드 후 대기 시간
   } = options;
 

@@ -37,20 +37,28 @@ export async function crawlHouses() {
 
     // 남해군청 빈집 정보
     console.log('  - 남해군청 빈집 정보 크롤링...');
-    const namhaeHouses = await withRetry(
-      () => crawlNamhae(page),
-      { retries: 2, name: '남해군청' }
-    );
-    results.push(...namhaeHouses);
+    try {
+      const namhaeHouses = await withRetry(
+        () => crawlNamhae(page),
+        { retries: 2, name: '남해군청' }
+      );
+      results.push(...namhaeHouses);
+    } catch (error) {
+      console.error(`  남해군청 빈집 최종 실패 (계속 진행): ${error.message}`);
+    }
     await delay(1500);  // Rate limiting
 
     // 그린대로 (동적 페이지)
     console.log('  - 그린대로 크롤링...');
-    const greendaeroHouses = await withRetry(
-      () => crawlGreendaero(page),
-      { retries: 2, name: '그린대로' }
-    );
-    results.push(...greendaeroHouses);
+    try {
+      const greendaeroHouses = await withRetry(
+        () => crawlGreendaero(page),
+        { retries: 2, name: '그린대로' }
+      );
+      results.push(...greendaeroHouses);
+    } catch (error) {
+      console.error(`  그린대로 최종 실패 (계속 진행): ${error.message}`);
+    }
 
   } finally {
     await browser.close();
@@ -146,7 +154,8 @@ async function crawlGreendaero(page) {
 
   try {
     // 1. 빈집 목록 페이지 접속 (세션 초기화)
-    await safeGoto(page, TARGETS.greendaero, { waitUntil: 'networkidle', delayAfter: 2000 });
+    // SPA이므로 domcontentloaded 후 추가 대기로 처리 (#29)
+    await safeGoto(page, TARGETS.greendaero, { waitUntil: 'domcontentloaded', delayAfter: 3000 });
 
     // 2. API를 통해 경상남도 빈집 데이터 조회
     const apiParams = {
