@@ -23,7 +23,7 @@ Node.js 크롤러 및 GitHub Actions CI/CD 전문가.
 - 남해군청 구인구직: `https://www.namhae.go.kr/portal/board/List.do`
 - 경남 워크넷: `https://gyeongnam.work.go.kr/namhae/main.do`
 - 남해군청 빈집정보: `https://www.namhae.go.kr/depart/Index.do?c=DE0201060000`
-- 그린대로 빈집 API: `https://www.greendaero.go.kr/svc/rfph/cpif/getVacantHomePagingList.do`
+- 그린대로 빈집: `https://www.greendaero.go.kr/svc/rfph/cpif/front/vacantlist.do`
 
 ## 현재 프로젝트 컨텍스트
 

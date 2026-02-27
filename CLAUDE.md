@@ -151,7 +151,7 @@ npm run deploy           # 배포
 
 ### 빈집
 - 남해군청 빈집정보: `https://www.namhae.go.kr/depart/Index.do?c=DE0201060000`
-- 그린대로: `https://www.greendaero.go.kr` (API: `/svc/rfph/cpif/getVacantHomePagingList.do`)
+- 그린대로 빈집: `https://www.greendaero.go.kr/svc/rfph/cpif/front/vacantlist.do`
 
 ## UI/UX 원칙
 
