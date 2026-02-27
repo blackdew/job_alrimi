@@ -20,7 +20,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
-    print('Background message received: ${message.messageId}');
+    debugPrint('Background message received: ${message.messageId}');
   }
 }
 
@@ -54,7 +54,7 @@ Future<void> _initializeFCM() async {
   );
 
   if (kDebugMode) {
-    print('FCM 권한 상태: ${settings.authorizationStatus}');
+    debugPrint('FCM 권한 상태: ${settings.authorizationStatus}');
   }
 
   // FCM 토큰 가져오기
@@ -70,7 +70,7 @@ Future<void> _initializeFCM() async {
       }
     } else {
       if (kDebugMode) {
-        print('⚠️ VAPID 키가 설정되지 않았습니다. Firebase Console에서 발급받으세요.');
+        debugPrint('⚠️ VAPID 키가 설정되지 않았습니다. Firebase Console에서 발급받으세요.');
       }
     }
   } else {
@@ -79,7 +79,7 @@ Future<void> _initializeFCM() async {
   }
 
   if (kDebugMode && token != null) {
-    print('FCM Token: $token');
+    debugPrint('FCM Token: $token');
   }
 }
 
@@ -97,11 +97,11 @@ Future<void> _saveWebTokenToFirestore(String token) async {
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
     if (kDebugMode) {
-      print('웹 FCM 토큰 저장 완료');
+      debugPrint('웹 FCM 토큰 저장 완료');
     }
   } catch (e) {
     if (kDebugMode) {
-      print('웹 FCM 토큰 저장 실패: $e');
+      debugPrint('웹 FCM 토큰 저장 실패: $e');
     }
   }
 }
@@ -140,7 +140,7 @@ class _MyAppState extends State<MyApp> {
     // Foreground 메시지 처리 - 인앱 알림 표시
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
-        print('Foreground message received: ${message.notification?.title}');
+        debugPrint('Foreground message received: ${message.notification?.title}');
       }
 
       final messenger = navigatorKey.currentContext != null
@@ -178,7 +178,7 @@ class _MyAppState extends State<MyApp> {
     // Background 상태에서 알림 클릭 처리
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (kDebugMode) {
-        print('Message opened app: ${message.notification?.title}');
+        debugPrint('Message opened app: ${message.notification?.title}');
       }
       _handleMessage(message);
     });
@@ -190,7 +190,7 @@ class _MyAppState extends State<MyApp> {
     final type = message.data['type'];
 
     if (kDebugMode) {
-      print('Handle message - itemId: $itemId, type: $type');
+      debugPrint('Handle message - itemId: $itemId, type: $type');
     }
 
     if (itemId == null || type == null) return;
@@ -209,7 +209,7 @@ class _MyAppState extends State<MyApp> {
 
       if (!doc.exists) {
         if (kDebugMode) {
-          print('Document not found: $collection/$itemId');
+          debugPrint('Document not found: $collection/$itemId');
         }
         return;
       }
@@ -222,7 +222,7 @@ class _MyAppState extends State<MyApp> {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('Error navigating to detail: $e');
+        debugPrint('Error navigating to detail: $e');
       }
     }
   }

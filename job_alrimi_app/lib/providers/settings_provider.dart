@@ -52,18 +52,18 @@ class SettingsProvider extends ChangeNotifier {
   /// jobs 토픽 구독/해제
   Future<void> _updateJobsTopicSubscription() async {
     if (!_canSubscribeToTopics) {
-      if (kDebugMode) print('FCM: 웹에서는 토픽 구독 건너뜀 (서버에서 처리 필요)');
+      if (kDebugMode) debugPrint('FCM: 웹에서는 토픽 구독 건너뜀 (서버에서 처리 필요)');
       return;
     }
     if (_subscribeJobs && _notificationsEnabled) {
       await _messaging.subscribeToTopic('jobs');
       if (kDebugMode) {
-        print('FCM: jobs 토픽 구독');
+        debugPrint('FCM: jobs 토픽 구독');
       }
     } else {
       await _messaging.unsubscribeFromTopic('jobs');
       if (kDebugMode) {
-        print('FCM: jobs 토픽 해제');
+        debugPrint('FCM: jobs 토픽 해제');
       }
     }
   }
@@ -74,12 +74,12 @@ class SettingsProvider extends ChangeNotifier {
     if (_subscribeHouses && _notificationsEnabled) {
       await _messaging.subscribeToTopic('houses');
       if (kDebugMode) {
-        print('FCM: houses 토픽 구독');
+        debugPrint('FCM: houses 토픽 구독');
       }
     } else {
       await _messaging.unsubscribeFromTopic('houses');
       if (kDebugMode) {
-        print('FCM: houses 토픽 해제');
+        debugPrint('FCM: houses 토픽 해제');
       }
     }
   }
@@ -97,7 +97,7 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setBool('subscribeHouses', _subscribeHouses);
     await prefs.setBool('notificationsEnabled', _notificationsEnabled);
     if (kDebugMode) {
-      print('Settings saved: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
+      debugPrint('Settings saved: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
     }
   }
 
@@ -109,7 +109,7 @@ class SettingsProvider extends ChangeNotifier {
     _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
     notifyListeners();
     if (kDebugMode) {
-      print('Settings loaded: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
+      debugPrint('Settings loaded: jobs=$_subscribeJobs, houses=$_subscribeHouses, notifications=$_notificationsEnabled');
     }
   }
 }
