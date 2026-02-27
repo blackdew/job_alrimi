@@ -4,7 +4,7 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js');
 
-// Firebase 설정 (firebase_options.dart의 web 설정과 동일)
+// Firebase 클라이언트 설정 - 공개 키 (보안 위험 없음, Security Rules로 보호)
 firebase.initializeApp({
   apiKey: 'AIzaSyADHLRByIY0LsUTgh_aUXgUDD_h2TlLjsU',
   authDomain: 'job-alrimi.firebaseapp.com',

@@ -65,7 +65,6 @@ coverage/
 # Credentials (중요!)
 **/google-services.json
 **/GoogleService-Info.plist
-**/firebase_options.dart
 **/serviceAccountKey.json
 
 # Ralph agent (로컬 작업 파일)
