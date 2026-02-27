@@ -29,29 +29,41 @@ export async function crawlJobs() {
 
     // 남해군청 새올 게시판
     console.log('  - 새올 게시판 크롤링...');
-    const saeolJobs = await withRetry(
-      () => crawlSaeol(page),
-      { retries: 2, name: '새올' }
-    );
-    results.push(...saeolJobs);
+    try {
+      const saeolJobs = await withRetry(
+        () => crawlSaeol(page),
+        { retries: 2, name: '새올' }
+      );
+      results.push(...saeolJobs);
+    } catch (error) {
+      console.error(`  새올 최종 실패 (계속 진행): ${error.message}`);
+    }
     await delay(1500);  // Rate limiting
 
     // 남해군청 구인구직 게시판
     console.log('  - 구인구직 게시판 크롤링...');
-    const boardJobs = await withRetry(
-      () => crawlBoard(page),
-      { retries: 2, name: '구인구직' }
-    );
-    results.push(...boardJobs);
+    try {
+      const boardJobs = await withRetry(
+        () => crawlBoard(page),
+        { retries: 2, name: '구인구직' }
+      );
+      results.push(...boardJobs);
+    } catch (error) {
+      console.error(`  구인구직 최종 실패 (계속 진행): ${error.message}`);
+    }
     await delay(1500);  // Rate limiting
 
     // 경남 워크넷 (남해군)
     console.log('  - 워크넷 크롤링...');
-    const worknetJobs = await withRetry(
-      () => crawlWorknet(page),
-      { retries: 2, name: '워크넷' }
-    );
-    results.push(...worknetJobs);
+    try {
+      const worknetJobs = await withRetry(
+        () => crawlWorknet(page),
+        { retries: 2, name: '워크넷' }
+      );
+      results.push(...worknetJobs);
+    } catch (error) {
+      console.error(`  워크넷 최종 실패 (계속 진행): ${error.message}`);
+    }
 
   } finally {
     await browser.close();
