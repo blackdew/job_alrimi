@@ -76,3 +76,4 @@ scripts/ralph/archive/
 # Claude Code (로컬 설정)
 .claude/settings.local.json
 .claude/worktrees/
+.claude/*.local.md
