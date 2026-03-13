@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import * as cheerio from 'cheerio';
-import { extractKeywords } from '../utils/parser.js';
+import { extractKeywords, extractPhoneNumbers } from '../utils/parser.js';
 import { delay, withRetry, safeGoto, parseDate, generateId } from '../utils/crawler.js';
 
 // 크롤링 대상 URL
@@ -191,11 +191,48 @@ async function crawlBoard(page) {
           title,
           date,
           link,
-          phones: [DEFAULT_PHONE],  // 상세 페이지에서 추출 필요
+          phones: [DEFAULT_PHONE],
           keywords,
           type: 'job',
           crawledAt: new Date().toISOString(),
         });
+      }
+    }
+
+    // 상세 페이지에서 전화번호와 본문 추출 (최신 10건만)
+    for (const job of jobs.slice(0, 10)) {
+      try {
+        await delay(1000);
+        await safeGoto(page, job.link, { delayAfter: 1000 });
+        const detailHtml = await page.content();
+        const $d = cheerio.load(detailHtml);
+
+        // 본문 영역 추출 (남해군청 구인구직 게시판: .substance)
+        const bodyEl = $d('.substance').first();
+        const bodyText = bodyEl.length > 0 ? bodyEl.text().trim() : '';
+
+        if (bodyText) {
+          // 전화번호 추출: 본문에서 "연락처" 패턴 우선, 없으면 전체 번호 추출
+          const contactMatch = bodyText.match(/연락처\s*[:：]\s*([\d\s.-]+)/);
+          const phones = contactMatch
+            ? extractPhoneNumbers(contactMatch[1])
+            : extractPhoneNumbers(bodyText);
+
+          if (phones.length > 0) {
+            job.phones = phones;
+          }
+
+          // 본문에서 구조화된 정보 추출 (description)
+          const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          const infoLines = lines.filter(l =>
+            /^\d+\.\s|사업체|모집|급\s*여|근무|연락처/.test(l)
+          );
+          if (infoLines.length > 0) {
+            job.description = infoLines.join('\n');
+          }
+        }
+      } catch (err) {
+        // 상세 페이지 접속 실패 시 기본값 유지
       }
     }
 
