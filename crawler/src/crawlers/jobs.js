@@ -111,7 +111,7 @@ async function crawlSaeol(page) {
       const keywords = extractKeywords(title + ' ' + text);
 
       if (title && title.length > 2) {
-        const link = href?.startsWith('http') ? href : `https://www.namhae.go.kr/modules/saeol/${href}`;
+        const link = href?.startsWith('http') ? href : `https://www.namhae.go.kr/modules/saeol/gosi.do${href}`;
 
         jobs.push({
           id: generateId('saeol', href || title),
@@ -128,10 +128,27 @@ async function crawlSaeol(page) {
       }
     }
 
+    // 상세 페이지에서 본문 추출 (최신 10건만)
+    for (const job of jobs.slice(0, 10)) {
+      try {
+        await delay(1000);
+        await safeGoto(page, job.link, { delayAfter: 1000 });
+        const detailHtml = await page.content();
+        const $d = cheerio.load(detailHtml);
+
+        const bodyText = $d('.substance').first().text().trim();
+        if (bodyText && bodyText.length > 10) {
+          job.description = bodyText;
+        }
+      } catch (err) {
+        // 상세 페이지 접속 실패 시 기본값 유지
+      }
+    }
+
     console.log(`    새올: ${jobs.length}건 수집`);
   } catch (error) {
     console.error('  새올 크롤링 오류:', error.message);
-    throw error;  // withRetry에서 재시도하도록
+    throw error;
   }
 
   return jobs;
@@ -305,6 +322,47 @@ async function crawlWorknet(page) {
           type: 'job',
           crawledAt: new Date().toISOString(),
         });
+      }
+    }
+
+    // 상세 페이지에서 채용 상세 정보 추출 (최신 10건만)
+    for (const job of jobs.slice(0, 10)) {
+      if (!job.link || !job.link.includes('work24.go.kr')) continue;
+      try {
+        await delay(1500);
+        await safeGoto(page, job.link, { waitUntil: 'load', delayAfter: 2000 });
+        await page.waitForTimeout(1000);
+
+        const desc = await page.evaluate(() => {
+          const keys = ['모집 인원', '모집 직종', '임금 조건', '근무 시간', '근무 형태', '근무 예정지', '고용 형태'];
+          const parts = [];
+          const ths = document.querySelectorAll('th');
+          ths.forEach(th => {
+            const td = th.nextElementSibling;
+            if (!td || td.tagName !== 'TD') return;
+            const k = th.textContent.replace(/도움말/g, '').trim();
+            if (!keys.includes(k)) return;
+            let v = td.textContent.replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+            if (v && v !== '-') {
+              if (v.includes('지도 보기')) v = v.replace('지도 보기', '').trim();
+              parts.push(`${k}: ${v}`);
+            }
+          });
+          // 직무내용
+          const jobDescEl = document.querySelector('.careers-new__detail .careers-new__sub');
+          if (jobDescEl) {
+            const text = jobDescEl.textContent.replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+            const match = text.match(/직무내용\s*(.*)/);
+            if (match) parts.unshift(`직무내용: ${match[1].trim()}`);
+          }
+          return parts.length > 0 ? parts.join('\n') : null;
+        });
+
+        if (desc) {
+          job.description = desc;
+        }
+      } catch (err) {
+        // 상세 페이지 접속 실패 시 기본값 유지
       }
     }
 
