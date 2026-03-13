@@ -7,67 +7,148 @@ import '../models/job_item.dart';
 class JobRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// 모든 항목 조회 (jobs + houses 컬렉션 병합)
-  Future<List<JobItem>> fetchAll() async {
-    final jobsSnapshot = await _firestore
-        .collection('jobs')
-        .orderBy('crawledAt', descending: true)
-        .limit(50)
-        .get();
+  static const int _pageSize = 30;
 
-    final housesSnapshot = await _firestore
-        .collection('houses')
-        .orderBy('crawledAt', descending: true)
-        .limit(50)
-        .get();
+  /// 초기 로드: jobs + houses 컬렉션 병합
+  Future<FetchResult> fetchAll() async {
+    final results = await Future.wait([
+      _firestore
+          .collection('jobs')
+          .orderBy('crawledAt', descending: true)
+          .limit(_pageSize)
+          .get(),
+      _firestore
+          .collection('houses')
+          .orderBy('crawledAt', descending: true)
+          .limit(_pageSize)
+          .get(),
+    ]);
 
-    final jobs = <JobItem>[];
+    final jobsSnapshot = results[0];
+    final housesSnapshot = results[1];
+
+    final items = <JobItem>[];
     for (final doc in jobsSnapshot.docs) {
       try {
-        jobs.add(JobItem.fromFirestore(doc.data(), doc.id));
+        items.add(JobItem.fromFirestore(doc.data(), doc.id));
       } catch (e) {
-        if (kDebugMode) print('Job parse error: $e, data: ${doc.data()}');
+        if (kDebugMode) print('Job parse error: $e');
       }
     }
-
-    final houses = <JobItem>[];
     for (final doc in housesSnapshot.docs) {
       try {
-        houses.add(JobItem.fromFirestore(doc.data(), doc.id));
+        items.add(JobItem.fromFirestore(doc.data(), doc.id));
       } catch (e) {
-        if (kDebugMode) print('House parse error: $e, data: ${doc.data()}');
+        if (kDebugMode) print('House parse error: $e');
       }
     }
 
-    final all = [...jobs, ...houses];
-    all.sort((a, b) => b.crawledAt.compareTo(a.crawledAt));
+    items.sort((a, b) => b.crawledAt.compareTo(a.crawledAt));
 
-    return all;
+    return FetchResult(
+      items: items,
+      lastJobDoc: jobsSnapshot.docs.isNotEmpty ? jobsSnapshot.docs.last : null,
+      lastHouseDoc:
+          housesSnapshot.docs.isNotEmpty ? housesSnapshot.docs.last : null,
+      hasMoreJobs: jobsSnapshot.docs.length >= _pageSize,
+      hasMoreHouses: housesSnapshot.docs.length >= _pageSize,
+    );
   }
 
-  /// 일자리만 조회
-  Future<List<JobItem>> fetchJobs() async {
-    final snapshot = await _firestore
-        .collection('jobs')
-        .orderBy('crawledAt', descending: true)
-        .limit(50)
-        .get();
+  /// 추가 로드 (cursor-based pagination)
+  Future<FetchResult> fetchMore({
+    DocumentSnapshot? lastJobDoc,
+    DocumentSnapshot? lastHouseDoc,
+    bool loadJobs = true,
+    bool loadHouses = true,
+  }) async {
+    final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
 
-    return snapshot.docs
-        .map((doc) => JobItem.fromFirestore(doc.data(), doc.id))
-        .toList();
+    if (loadJobs && lastJobDoc != null) {
+      futures.add(_firestore
+          .collection('jobs')
+          .orderBy('crawledAt', descending: true)
+          .startAfterDocument(lastJobDoc)
+          .limit(_pageSize)
+          .get());
+    }
+    if (loadHouses && lastHouseDoc != null) {
+      futures.add(_firestore
+          .collection('houses')
+          .orderBy('crawledAt', descending: true)
+          .startAfterDocument(lastHouseDoc)
+          .limit(_pageSize)
+          .get());
+    }
+
+    if (futures.isEmpty) {
+      return FetchResult(
+          items: [],
+          hasMoreJobs: false,
+          hasMoreHouses: false);
+    }
+
+    final results = await Future.wait(futures);
+
+    final items = <JobItem>[];
+    DocumentSnapshot? newLastJobDoc = lastJobDoc;
+    DocumentSnapshot? newLastHouseDoc = lastHouseDoc;
+    bool hasMoreJobs = false;
+    bool hasMoreHouses = false;
+
+    int resultIndex = 0;
+    if (loadJobs && lastJobDoc != null) {
+      final snapshot = results[resultIndex++];
+      for (final doc in snapshot.docs) {
+        try {
+          items.add(JobItem.fromFirestore(doc.data(), doc.id));
+        } catch (e) {
+          if (kDebugMode) print('Job parse error: $e');
+        }
+      }
+      if (snapshot.docs.isNotEmpty) newLastJobDoc = snapshot.docs.last;
+      hasMoreJobs = snapshot.docs.length >= _pageSize;
+    }
+    if (loadHouses && lastHouseDoc != null && resultIndex < results.length) {
+      final snapshot = results[resultIndex];
+      for (final doc in snapshot.docs) {
+        try {
+          items.add(JobItem.fromFirestore(doc.data(), doc.id));
+        } catch (e) {
+          if (kDebugMode) print('House parse error: $e');
+        }
+      }
+      if (snapshot.docs.isNotEmpty) newLastHouseDoc = snapshot.docs.last;
+      hasMoreHouses = snapshot.docs.length >= _pageSize;
+    }
+
+    items.sort((a, b) => b.crawledAt.compareTo(a.crawledAt));
+
+    return FetchResult(
+      items: items,
+      lastJobDoc: newLastJobDoc,
+      lastHouseDoc: newLastHouseDoc,
+      hasMoreJobs: hasMoreJobs,
+      hasMoreHouses: hasMoreHouses,
+    );
   }
+}
 
-  /// 빈집만 조회
-  Future<List<JobItem>> fetchHouses() async {
-    final snapshot = await _firestore
-        .collection('houses')
-        .orderBy('crawledAt', descending: true)
-        .limit(50)
-        .get();
+/// 페이지네이션 커서를 포함한 조회 결과
+class FetchResult {
+  final List<JobItem> items;
+  final DocumentSnapshot? lastJobDoc;
+  final DocumentSnapshot? lastHouseDoc;
+  final bool hasMoreJobs;
+  final bool hasMoreHouses;
 
-    return snapshot.docs
-        .map((doc) => JobItem.fromFirestore(doc.data(), doc.id))
-        .toList();
-  }
+  bool get hasMore => hasMoreJobs || hasMoreHouses;
+
+  FetchResult({
+    required this.items,
+    this.lastJobDoc,
+    this.lastHouseDoc,
+    this.hasMoreJobs = false,
+    this.hasMoreHouses = false,
+  });
 }

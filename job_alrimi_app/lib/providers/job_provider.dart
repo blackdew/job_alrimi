@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/job_item.dart';
@@ -11,9 +12,15 @@ class JobProvider extends ChangeNotifier {
 
   List<JobItem> _items = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
+  bool _hasMore = false;
   String? _error;
   String _filter = 'all'; // 'all', 'job', 'house'
   Set<String> _readIds = {};
+
+  // 페이지네이션 커서
+  DocumentSnapshot? _lastJobDoc;
+  DocumentSnapshot? _lastHouseDoc;
 
   List<JobItem> get items {
     if (_filter == 'all') return _items;
@@ -21,6 +28,8 @@ class JobProvider extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
   String? get error => _error;
   String get filter => _filter;
 
@@ -34,7 +43,11 @@ class JobProvider extends ChangeNotifier {
 
     try {
       await _loadReadIds();
-      _items = await _repository.fetchAll();
+      final result = await _repository.fetchAll();
+      _items = result.items;
+      _lastJobDoc = result.lastJobDoc;
+      _lastHouseDoc = result.lastHouseDoc;
+      _hasMore = result.hasMore;
       _applyReadStatus();
       _error = null;
     } catch (e) {
@@ -42,6 +55,32 @@ class JobProvider extends ChangeNotifier {
       debugPrint('JobProvider.refresh error: $e');
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// 추가 데이터 로드 (무한 스크롤)
+  Future<void> loadMore() async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final result = await _repository.fetchMore(
+        lastJobDoc: _lastJobDoc,
+        lastHouseDoc: _lastHouseDoc,
+      );
+
+      _items.addAll(result.items);
+      _lastJobDoc = result.lastJobDoc;
+      _lastHouseDoc = result.lastHouseDoc;
+      _hasMore = result.hasMore;
+      _applyReadStatus();
+    } catch (e) {
+      debugPrint('JobProvider.loadMore error: $e');
+    } finally {
+      _isLoadingMore = false;
       notifyListeners();
     }
   }

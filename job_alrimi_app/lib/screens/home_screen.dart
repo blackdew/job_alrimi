@@ -15,6 +15,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +24,21 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<JobProvider>().refresh();
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<JobProvider>().loadMore();
+    }
   }
 
   @override
@@ -192,11 +209,28 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
+        final itemCount = provider.items.length + (provider.hasMore ? 1 : 0);
+
         return RefreshIndicator(
           onRefresh: provider.refresh,
           child: ListView.builder(
-            itemCount: provider.items.length,
+            controller: _scrollController,
+            itemCount: itemCount,
             itemBuilder: (context, index) {
+              // 마지막 항목: 로딩 인디케이터
+              if (index >= provider.items.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(
+                    child: SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ),
+                  ),
+                );
+              }
+
               final item = provider.items[index];
               return JobListTile(
                 item: item,
