@@ -260,62 +260,46 @@ async function crawlWorknet(page) {
     const html = await page.content();
     const $ = cheerio.load(html);
 
-    // 워크넷 구인정보 목록 찾기 (여러 선택자 시도)
-    const selectors = [
-      '.job-list li',           // 일반적인 구인목록
-      '.recruit-list li',       // 채용정보 리스트
-      'table tbody tr',         // 테이블 형식
-      '.board-list li',         // 게시판 형식
-      '[class*="job"] li',      // job 포함 클래스
-      '[class*="recruit"] li',  // recruit 포함 클래스
-    ];
+    // "우리지역 채용정보" 섹션: work24.go.kr 링크를 포함한 실제 구인 항목
+    const listItems = $('ul.region_emp li').toArray();
 
-    let listItems = [];
-    for (const selector of selectors) {
-      const items = $(selector).toArray();
-      if (items.length > 0) {
-        listItems = items;
-        console.log(`    워크넷 선택자: ${selector} (${items.length}건)`);
-        break;
-      }
-    }
-
-    // 텍스트 기반 폴백: "채용", "모집" 등 포함된 요소
     if (listItems.length === 0) {
-      listItems = $('a').filter((_, el) => {
-        const text = $(el).text();
-        return text.includes('채용') || text.includes('모집') || text.includes('구인');
-      }).toArray();
+      // 폴백: work24.go.kr 링크가 있는 모든 li
+      const fallbackItems = $('a[href*="work24.go.kr"]').closest('li').toArray();
+      if (fallbackItems.length > 0) {
+        console.log(`    워크넷 폴백 선택자 사용 (${fallbackItems.length}건)`);
+        listItems.push(...fallbackItems);
+      }
     }
 
     for (const el of listItems.slice(0, 20)) {
       const $el = $(el);
-      let title, href;
+      const $link = $el.find('a[href*="work24.go.kr"]').first();
+      if (!$link.length) continue;
 
-      // 링크가 있는 경우
-      const $link = $el.is('a') ? $el : $el.find('a').first();
-      if ($link.length) {
-        title = $link.text().trim();
-        href = $link.attr('href');
-      } else {
-        title = $el.text().trim().substring(0, 100);
-      }
+      const href = $link.attr('href');
 
-      // 제목 정리 (공백, 개행 제거)
-      if (title) {
-        title = title.replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
-      }
+      // 구조화된 정보 추출
+      const company = $link.find('strong').first().text().trim();
+      const allText = $link.text().replace(/[\n\r\t]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-      if (title && title.length > 5 && title.length < 200) {
+      // 제목: 회사명 + 직무명
+      const title = allText;
+
+      if (title && title.length > 5) {
         const keywords = extractKeywords(title);
+
+        // 마감일 추출 (26-MM-DD 또는 채용시까지 패턴)
+        const deadlineMatch = allText.match(/(\d{2}-\d{2}-\d{2})/g);
+        const deadline = deadlineMatch ? deadlineMatch[deadlineMatch.length - 1] : null;
 
         jobs.push({
           id: generateId('worknet', href || title),
           source: 'worknet',
           sourceName: '경남 워크넷',
           title,
-          date: new Date().toISOString().split('T')[0],  // 오늘 날짜
-          link: href ? (href.startsWith('http') ? href : `https://gyeongnam.work.go.kr${href}`) : TARGETS.worknet,
+          date: new Date().toISOString().split('T')[0],
+          link: href,
           phones: ['1350'],  // 워크넷 고객센터
           keywords,
           type: 'job',
@@ -327,7 +311,6 @@ async function crawlWorknet(page) {
     console.log(`    워크넷: ${jobs.length}건 수집`);
   } catch (error) {
     console.error('  워크넷 크롤링 오류:', error.message);
-    // 워크넷은 실패해도 전체 크롤링은 계속
     return [];
   }
 
