@@ -101,7 +101,7 @@ job_alrimi/
 │       ├── theme/        # 색상 시스템 (AppColors)
 │       └── widgets/      # 재사용 위젯
 ├── functions/            # Firebase Cloud Functions (index.js - 푸시 트리거)
-└── docs/                 # 설정 가이드, 구현 계획서
+└── docs/                 # PRD, 설정 가이드, 구현 계획서
 ```
 
 ### 데이터 흐름
