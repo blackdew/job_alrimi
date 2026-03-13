@@ -41,16 +41,15 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!-- Firebase Messaging SW: 사용자 제스처 후 등록 (사파리 호환) -->
+  <!-- Firebase Messaging Service Worker 등록 -->
   <script>
-    window._registerFirebaseSW = function() {
-      if ('serviceWorker' in navigator && !window._firebaseSWRegistered) {
-        window._firebaseSWRegistered = true;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
         navigator.serviceWorker.register('/firebase-messaging-sw.js')
           .then(function(r) { console.log('Firebase Messaging SW registered:', r.scope); })
           .catch(function(e) { console.log('Firebase Messaging SW failed:', e); });
-      }
-    };
+      });
+    }
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

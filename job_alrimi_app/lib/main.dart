@@ -30,9 +30,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 웹: FCM 전체를 사용자 제스처 후로 지연 (사파리 호환)
-  // 모바일: 즉시 초기화
-  if (!kIsWeb) {
+  if (kIsWeb) {
+    // 웹: FCM 초기화를 사용자 제스처 후로 지연 (사파리/크롬 호환)
+    // Firebase.initializeApp()이 messaging 플러그인도 등록하지만
+    // requestPermission/getToken은 호출하지 않음
+  } else {
+    // 모바일: 즉시 초기화
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await _initializeFCM();
   }
@@ -142,8 +145,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initializeApp() async {
-    // 설정 로드 (웹: FCM 토픽 구독은 건너뜀)
-    await _settingsProvider.loadSettings();
+    try {
+      // 설정 로드 (웹: FCM 토픽 구독은 건너뜀)
+      await _settingsProvider.loadSettings();
+    } catch (e) {
+      debugPrint('Settings load error (non-fatal): $e');
+    }
 
     if (!kIsWeb) {
       // 모바일: 앱이 종료된 상태에서 알림으로 실행된 경우 처리
