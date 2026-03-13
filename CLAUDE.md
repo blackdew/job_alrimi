@@ -94,14 +94,14 @@ job_alrimi/
 │       └── utils/        # 파서, Firebase 유틸
 ├── job_alrimi_app/       # Flutter 앱 (Android/iOS/Web)
 │   └── lib/
-│       ├── models/       # 데이터 모델
+│       ├── models/       # 데이터 모델 (job_item.dart - 일자리/빈집 공용)
 │       ├── providers/    # 상태 관리 (Provider + SharedPreferences)
 │       ├── repositories/ # 데이터 접근 계층
 │       ├── screens/      # 화면
 │       ├── theme/        # 색상 시스템 (AppColors)
 │       └── widgets/      # 재사용 위젯
-├── functions/            # Firebase Cloud Functions (푸시 트리거)
-└── docs/                 # PRD, 구현 계획서
+├── functions/            # Firebase Cloud Functions (index.js - 푸시 트리거)
+└── docs/                 # 설정 가이드, 구현 계획서
 ```
 
 ### 데이터 흐름
@@ -125,7 +125,7 @@ job_alrimi/
 ```bash
 # 크롤러
 cd crawler && npm install
-npm run dev              # 크롤링 실행
+npm run crawl            # 전체 크롤링 실행 (= npm run dev)
 npm run crawl:jobs       # 일자리만 크롤링
 npm run crawl:houses     # 빈집만 크롤링
 
