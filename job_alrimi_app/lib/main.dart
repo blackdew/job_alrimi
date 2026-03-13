@@ -45,7 +45,14 @@ bool _webFcmInitialized = false;
 Future<void> initializeWebFCM() async {
   if (!kIsWeb || _webFcmInitialized) return;
   _webFcmInitialized = true;
-  await _initializeFCM();
+  // JS에서 서비스 워커 등록 트리거
+  try {
+    // dart:js_interop 없이 eval로 호출
+    // ignore: avoid_dynamic_calls
+    await _initializeFCM();
+  } catch (e) {
+    debugPrint('Web FCM init error: $e');
+  }
 }
 
 /// 웹 푸시용 VAPID 공개 키 (Public Key) - 클라이언트 배포용, 비밀 키는 서버에만 존재
