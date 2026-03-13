@@ -13,7 +13,8 @@ class JobProvider extends ChangeNotifier {
   List<JobItem> _items = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
-  bool _hasMore = false;
+  bool _hasMoreJobs = false;
+  bool _hasMoreHouses = false;
   String? _error;
   String _filter = 'all'; // 'all', 'job', 'house'
   Set<String> _readIds = {};
@@ -29,7 +30,11 @@ class JobProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
-  bool get hasMore => _hasMore;
+  bool get hasMore {
+    if (_filter == 'job') return _hasMoreJobs;
+    if (_filter == 'house') return _hasMoreHouses;
+    return _hasMoreJobs || _hasMoreHouses;
+  }
   String? get error => _error;
   String get filter => _filter;
 
@@ -47,7 +52,8 @@ class JobProvider extends ChangeNotifier {
       _items = result.items;
       _lastJobDoc = result.lastJobDoc;
       _lastHouseDoc = result.lastHouseDoc;
-      _hasMore = result.hasMore;
+      _hasMoreJobs = result.hasMoreJobs;
+      _hasMoreHouses = result.hasMoreHouses;
       _applyReadStatus();
       _error = null;
     } catch (e) {
@@ -61,7 +67,7 @@ class JobProvider extends ChangeNotifier {
 
   /// 추가 데이터 로드 (무한 스크롤)
   Future<void> loadMore() async {
-    if (_isLoadingMore || !_hasMore) return;
+    if (_isLoadingMore || !hasMore) return;
 
     _isLoadingMore = true;
     notifyListeners();
@@ -70,12 +76,15 @@ class JobProvider extends ChangeNotifier {
       final result = await _repository.fetchMore(
         lastJobDoc: _lastJobDoc,
         lastHouseDoc: _lastHouseDoc,
+        loadJobs: _filter != 'house' && _hasMoreJobs,
+        loadHouses: _filter != 'job' && _hasMoreHouses,
       );
 
       _items.addAll(result.items);
-      _lastJobDoc = result.lastJobDoc;
-      _lastHouseDoc = result.lastHouseDoc;
-      _hasMore = result.hasMore;
+      if (result.lastJobDoc != null) _lastJobDoc = result.lastJobDoc;
+      if (result.lastHouseDoc != null) _lastHouseDoc = result.lastHouseDoc;
+      _hasMoreJobs = result.hasMoreJobs;
+      _hasMoreHouses = result.hasMoreHouses;
       _applyReadStatus();
     } catch (e) {
       debugPrint('JobProvider.loadMore error: $e');
