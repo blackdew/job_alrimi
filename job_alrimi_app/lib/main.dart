@@ -30,12 +30,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // FCM Background 메시지 핸들러 등록
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // 웹: FCM 초기화를 사용자 제스처 후로 지연 (알림 권한 요청은 제스처 필요)
+  // 웹: FCM 전체를 사용자 제스처 후로 지연 (사파리 호환)
   // 모바일: 즉시 초기화
   if (!kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await _initializeFCM();
   }
 
@@ -133,12 +131,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initializeApp();
-    _setupFCMListeners();
+    if (!kIsWeb) _setupFCMListeners();
   }
 
   Future<void> _initializeApp() async {
-    // 설정 로드 및 토픽 구독 초기화
-    await _settingsProvider.initializeTopics();
+    // 설정 로드 (웹: FCM 토픽 구독은 건너뜀)
+    await _settingsProvider.loadSettings();
 
     if (!kIsWeb) {
       // 모바일: 앱이 종료된 상태에서 알림으로 실행된 경우 처리
