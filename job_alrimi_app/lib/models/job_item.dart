@@ -12,6 +12,13 @@ class JobItem {
   final List<String> keywords;
   bool isRead;
 
+  // 빈집 부가정보
+  final String? address;
+  final String? landArea;
+  final String? buildArea;
+  final String? structure;
+  final String? buildYear;
+
   JobItem({
     required this.id,
     required this.title,
@@ -24,6 +31,11 @@ class JobItem {
     required this.crawledAt,
     this.keywords = const [],
     this.isRead = false,
+    this.address,
+    this.landArea,
+    this.buildArea,
+    this.structure,
+    this.buildYear,
   });
 
   factory JobItem.fromFirestore(Map<String, dynamic> data, String id) {
@@ -39,6 +51,11 @@ class JobItem {
       crawledAt: _parseDate(data['crawledAt']),
       keywords: List<String>.from(data['keywords'] ?? []),
       isRead: data['isRead'] ?? false,
+      address: data['address'],
+      landArea: data['landArea'],
+      buildArea: data['buildArea'],
+      structure: data['structure'],
+      buildYear: data['buildYear'],
     );
   }
 
