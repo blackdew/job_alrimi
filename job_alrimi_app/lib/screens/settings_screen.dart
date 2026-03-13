@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../main.dart';
 import '../providers/settings_provider.dart';
 import '../theme/app_colors.dart';
 
@@ -90,7 +92,10 @@ class SettingsScreen extends StatelessWidget {
                 thumbColor: WidgetStateProperty.resolveWith((states) =>
                     states.contains(WidgetState.selected) ? AppColors.primary : null),
                 value: settings.notificationsEnabled,
-                onChanged: (_) => settings.toggleNotifications(),
+                onChanged: (_) {
+                  if (kIsWeb) initializeWebFCM();
+                  settings.toggleNotifications();
+                },
               ),
 
               const SizedBox(height: 32),

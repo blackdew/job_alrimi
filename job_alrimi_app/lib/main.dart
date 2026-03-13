@@ -33,10 +33,21 @@ void main() async {
   // FCM Background 메시지 핸들러 등록
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // FCM 초기화
-  await _initializeFCM();
+  // 웹: FCM 초기화를 사용자 제스처 후로 지연 (알림 권한 요청은 제스처 필요)
+  // 모바일: 즉시 초기화
+  if (!kIsWeb) {
+    await _initializeFCM();
+  }
 
   runApp(const MyApp());
+}
+
+/// 웹: 사용자 제스처 후 FCM 초기화 (한 번만 실행)
+bool _webFcmInitialized = false;
+Future<void> initializeWebFCM() async {
+  if (!kIsWeb || _webFcmInitialized) return;
+  _webFcmInitialized = true;
+  await _initializeFCM();
 }
 
 /// 웹 푸시용 VAPID 공개 키 (Public Key) - 클라이언트 배포용, 비밀 키는 서버에만 존재
@@ -129,10 +140,12 @@ class _MyAppState extends State<MyApp> {
     // 설정 로드 및 토픽 구독 초기화
     await _settingsProvider.initializeTopics();
 
-    // 앱이 종료된 상태에서 알림으로 실행된 경우 처리
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
+    if (!kIsWeb) {
+      // 모바일: 앱이 종료된 상태에서 알림으로 실행된 경우 처리
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        _handleMessage(initialMessage);
+      }
     }
   }
 
